@@ -1,0 +1,21 @@
+[tool.commitizen]
+version = "0.0.0"
+update_changelog_on_bump = true
+tag_format = "v$version"
+changelog_start_rev = "v0.0"
+changelog_merge_prerelease = true
+annotated_tag = true
+bump_message = "change: Update version to $new_version"
+change_type_order = [
+    "BREAKING CHANGE",
+    "New Features",
+    "Bug Fixes",
+    "Code Refactoring",
+    "Performance Improvements"
+]
+
+[tool.commitizen.change_type_map]
+feat = "New Features"
+fix = "Bug Fixes"
+refactor = "Code Refactoring"
+perf = "Performance Improvements"
