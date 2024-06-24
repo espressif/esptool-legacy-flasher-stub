@@ -1,0 +1,12 @@
+repos:
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+    - id: codespell
+  - repo: https://github.com/espressif/conventional-precommit-linter
+    rev: v1.4.0
+    hooks:
+      - id: conventional-precommit-linter
+        stages: [commit-msg]
+default_stages: [commit]
+default_install_hook_types: [pre-commit, commit-msg]
