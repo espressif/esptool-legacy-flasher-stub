@@ -1,6 +1,6 @@
 name: pre-commit checks
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   pre_commit_checks:
