@@ -68,6 +68,7 @@ STUB_ELF_32H2_BETA_1 = $(BUILD_DIR)/$(STUB)32h2beta1.elf
 STUB_ELF_32H2_BETA_2 = $(BUILD_DIR)/$(STUB)32h2beta2.elf
 STUB_ELF_32C2 = $(BUILD_DIR)/$(STUB)32c2.elf
 STUB_ELF_32C6 = $(BUILD_DIR)/$(STUB)32c6.elf
+STUB_ELF_32C61 = $(BUILD_DIR)/$(STUB)32c61.elf
 STUB_ELF_32C5 = $(BUILD_DIR)/$(STUB)32c5.elf
 STUB_ELF_32C5_BETA_3 = $(BUILD_DIR)/$(STUB)32c5beta3.elf
 STUB_ELF_32H2 = $(BUILD_DIR)/$(STUB)32h2.elf
@@ -95,6 +96,7 @@ STUBS_ELF += \
   $(STUB_ELF_32H2_BETA_2) \
   $(STUB_ELF_32C2) \
   $(STUB_ELF_32C6) \
+  $(STUB_ELF_32C61) \
   $(STUB_ELF_32C5) \
   $(STUB_ELF_32C5_BETA_3) \
   $(STUB_ELF_32H2) \
@@ -172,6 +174,10 @@ $(STUB_ELF_32C2): $(SRCS) $(BUILD_DIR) ld/stub_32c2.ld
 $(STUB_ELF_32C6): $(SRCS) $(BUILD_DIR) ld/stub_32c6.ld
 	@echo "  CC(32C6)   $^ -> $@"
 	$(Q) $(CROSS_ESPRISCV32)gcc $(CFLAGS_ESPRISCV32) -DESP32C6=1 -Tstub_32c6.ld -Wl,-Map=$(@:.elf=.map) -o $@ $(filter %.c, $^) $(LDLIBS)
+
+$(STUB_ELF_32C61): $(SRCS) $(BUILD_DIR) ld/stub_32c61.ld
+	@echo "  CC(32C61)   $^ -> $@"
+	$(Q) $(CROSS_ESPRISCV32)gcc $(CFLAGS_ESPRISCV32) -DESP32C61=1 -Tstub_32c61.ld -Wl,-Map=$(@:.elf=.map) -o $@ $(filter %.c, $^) $(LDLIBS)
 
 $(STUB_ELF_32C5): $(SRCS) $(BUILD_DIR) ld/stub_32c5.ld
 	@echo "  CC(32C5)   $^ -> $@"
