@@ -1,3 +1,9 @@
+## v1.4.0 (2024-12-04)
+
+### New Features
+
+- **esp32p4**: add support for ESP32-P4 USB CDC
+
 ## v1.3.0 (2024-08-02)
 
 ### New Features
