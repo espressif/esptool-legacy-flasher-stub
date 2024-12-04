@@ -73,8 +73,7 @@
 
 #ifdef ESP32P4
 #define WITH_USB_JTAG_SERIAL 1
-// TODO: Add support for USB OTG when MP is available
-// #define WITH_USB_OTG 1
+#define WITH_USB_OTG 1
 #define IS_RISCV 1
 #endif // ESP32P4
 
@@ -209,10 +208,13 @@
 #define UART_BASE_REG       0x500CA000 /* UART0 */
 #define SPI_BASE_REG        0x5008D000 /* SPI peripheral 1, used for SPI flash */
 #define SPI0_BASE_REG       0x5008C000 /* SPI peripheral 0, inner state machine */
+#define USB_BASE_REG        0x50000000
 #define GPIO_BASE_REG       0x500E0000
 #define USB_DEVICE_BASE_REG 0x500D2000
+#define DR_REG_LP_SYS_BASE  0x50110000
 #define DR_REG_LP_WDT_BASE  0x50116000
 #define DR_REG_IO_MUX_BASE  0x500E1000
+#define HP_SYS_USBOTG20_CTRL_REG 0x500E515C
 #endif
 
 /**********************************************************
@@ -387,6 +389,7 @@
 
 #define DR_REG_INTERRUPT_MATRIX_BASE            0x500D6000
 #define INTERRUPT_CORE0_USB_INTR_MAP_REG        (DR_REG_INTERRUPT_MATRIX_BASE + 0x58) /* USB-JTAG-Serial, CORE0_USB_DEVICE_INT_MAP_REG */
+#define INTERRUPT_CORE0_USB_OTG_INT_MAP_REG     (DR_REG_INTERRUPT_MATRIX_BASE + 0x174) /* DWC-OTG, CORE0_USB_OTG_INT_MAP_REG */
 
 #define CLIC_EXT_INTR_NUM_OFFSET 16  /* For CLIC first 16 interrupts are reserved as internal */
 #define ETS_USB_INUM 17  /* arbitrary level 1 level interrupt */
@@ -434,7 +437,8 @@
 #endif
 
 #if ESP32C61 || ESP32C6 || ESP32C5 || ESP32C5BETA3 || ESP32P4
-#define RTC_CNTL_WDTCONFIG0_REG       (DR_REG_LP_WDT_BASE + 0x0)   // LP_WDT_RWDT_CONFIG0_REG
+#define RTC_CNTL_WDTCONFIG0_REG       (DR_REG_LP_WDT_BASE + 0x0)     // LP_WDT_RWDT_CONFIG0_REG
+#define RTC_CNTL_OPTION1_REG          (DR_REG_LP_SYS_BASE + 0x08)    // LP_SYSTEM_REG_SYS_CTRL_REG
 #define RTC_CNTL_WDTWPROTECT_REG      (DR_REG_LP_WDT_BASE + 0x0018)  // LP_WDT_RWDT_WPROTECT_REG
 #define RTC_CNTL_SWD_CONF_REG         (DR_REG_LP_WDT_BASE + 0x001C)  // LP_WDT_SWD_CONFIG_REG
 #define RTC_CNTL_SWD_WPROTECT_REG     (DR_REG_LP_WDT_BASE + 0x0020)  // LP_WDT_SWD_WPROTECT_REG
@@ -452,7 +456,11 @@
 #endif
 
 #define RTC_CNTL_WDT_WKEY             0x50D83AA1
-#define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 0)
+#ifdef ESP32P4
+    #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 2)
+#else
+    #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 0)
+#endif // ESP32P4
 
 /**********************************************************
  * SYSTEM registers
