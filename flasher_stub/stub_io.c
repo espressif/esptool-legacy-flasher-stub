@@ -155,6 +155,11 @@ static void stub_configure_rx_usb(void)
     intr_matrix_set(0, ETS_USB_INTR_SOURCE, ETS_USB_INUM);
   #elif ESP32S3
     WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM);
+  #elif ESP32P4
+    // Additional setting to solve missing DCONN event on ESP32P4 (IDF-9953).
+    REG_SET_MASK(HP_SYS_USBOTG20_CTRL_REG, 1 << 21); /* set HP_SYS_OTG_SUSPENDM */
+    WRITE_REG(INTERRUPT_CORE0_USB_OTG_INT_MAP_REG, ETS_USB_INUM + CLIC_EXT_INTR_NUM_OFFSET);
+    esprv_intc_int_set_priority(ETS_USB_INUM, 1);
   #endif
   ets_isr_attach(ETS_USB_INUM, usb_dw_isr_handler_wrapper, NULL);
   ets_isr_unmask(1 << ETS_USB_INUM);
