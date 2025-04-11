@@ -529,6 +529,8 @@ ets_isr_unmask = 0x40001b90;
  ***************************************/
 
 /* Functions */
+
+memcpy = 0x400011f4;
 xthal_bcopy = 0x40001b9c;
 xthal_memcpy = 0x40001ba8;
 xthal_get_ccompare = 0x40001bb4;

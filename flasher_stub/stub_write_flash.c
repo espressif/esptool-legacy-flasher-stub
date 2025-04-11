@@ -136,7 +136,7 @@ SpiFlashOpResult SPIUnlock(void)
 }
 #endif // ESP32_OR_LATER
 
-#if defined(ESP32S3) && !defined(ESP32S3BETA2)
+#if ESP32S3 && !ESP32S3BETA2
 static esp_rom_spiflash_result_t page_program_internal(int spi_num, uint32_t spi_addr, uint8_t* addr_source, uint32_t byte_length)
 {
     uint32_t  temp_addr;
@@ -168,9 +168,7 @@ static esp_rom_spiflash_result_t page_program_internal(int spi_num, uint32_t spi
     }
     return ESP_ROM_SPIFLASH_RESULT_OK;
 }
-#endif // ESP32S3
 
-#if defined(ESP32S3) && !defined(ESP32S3BETA2)
 static esp_rom_spiflash_result_t SPIWrite4B(int spi_num, uint32_t target, uint8_t *src_addr, int32_t len)
 {
     uint32_t  page_size = 256;
@@ -195,7 +193,109 @@ static esp_rom_spiflash_result_t SPIWrite4B(int spi_num, uint32_t target, uint8_
     esp_rom_opiflash_wait_idle();
     return  ESP_ROM_SPIFLASH_RESULT_OK;
 }
-#endif // defined(ESP32S3) && !defined(ESP32S3BETA2)
+
+SpiFlashOpResult SPI_Encrypt_Write_4B(uint32_t flash_addr, const void* data, uint32_t len) {
+  const uint8_t *data_bytes = (const uint8_t *)data;
+  SpiFlashOpResult result = SPI_FLASH_RESULT_OK;
+
+  if (flash_addr % 16 != 0 || len % 16 != 0)
+  {
+    // Minimum 128-bit size & alignment
+    return SPI_FLASH_RESULT_ERR;
+  }
+
+  esp_rom_spiflash_write_encrypted_enable();
+
+  WRITE_REG(AES_XTS_DESTINATION_REG, 0);
+
+  result = esp_rom_spiflash_unlock();
+  if (result != SPI_FLASH_RESULT_OK)
+  {
+    goto done_encrypt_write_4B;
+  }
+
+  while (len > 0)
+  {
+    int next_block;
+    int timeout = 0;
+    const int TIMEOUT_LIMIT = 100000;
+    int page_size = 256;
+
+    // Write the largest block possible
+    if (flash_addr % 64 == 0 && len >= 64 && (page_size - flash_addr % page_size >= 64)) {
+      next_block = 64;
+    }
+    else if (flash_addr % 32 == 0 && len >= 32 && (page_size - flash_addr % page_size >= 32)) {
+      next_block = 32;
+    }
+    else {
+      next_block = 16;
+    }
+
+    WRITE_REG(AES_XTS_SIZE_REG, next_block >> 5); // 0, 1, 2
+
+    uint32_t plaintext_offs = (flash_addr % MAX_ENCRYPT_BLOCK);
+    memcpy((void *)(AES_XTS_PLAIN_BASE + plaintext_offs), data_bytes, next_block);
+
+    WRITE_REG(AES_XTS_PHYSICAL_ADDR_REG, flash_addr);
+
+    // Perform the encryption
+    WRITE_REG(AES_XTS_TRIGGER_REG, 1);
+
+    // Prepare the flash chip (same time as AES operation, for performance)
+    spi_write_enable();
+
+    // Wait for the encryption to finish
+    while (READ_REG(AES_XTS_STATE_REG) != 0x2 && timeout < TIMEOUT_LIMIT) {
+      timeout++;
+    }
+    if (timeout == TIMEOUT_LIMIT) {
+      result = SPI_FLASH_RESULT_TIMEOUT;
+      goto done_encrypt_write_4B;
+    }
+
+    esp_rom_spiflash_wait_idle();
+
+    // Make the result visible to the SPI controller
+    WRITE_REG(AES_XTS_RELEASE_REG, 1);
+
+    while (READ_REG(AES_XTS_STATE_REG) != 0x3 && timeout < TIMEOUT_LIMIT) {
+      timeout++;
+    }
+    if (timeout == TIMEOUT_LIMIT) {
+      result = SPI_FLASH_RESULT_TIMEOUT;
+      goto done_encrypt_write_4B;
+    }
+
+    result = esp_rom_spiflash_wait_idle();
+    if (result != SPI_FLASH_RESULT_OK) {
+      goto done_encrypt_write_4B;
+    }
+
+    // Write the encrypted page to flash
+    esp_rom_opiflash_exec_cmd(1, SPI_FLASH_FASTRD_MODE,
+      CMD_PROGRAM_PAGE_4B, 8,
+      flash_addr, 32,  // address is set in AES_XTS_PHYSICAL_ADDR_REG, only the length is actually needed
+      0,
+      NULL, (8 * next_block - 1),  // data is exposed by AES-XTS, just set the length
+      NULL, 0,
+      ESP_ROM_OPIFLASH_SEL_CS0,
+      true);
+
+    WRITE_REG(AES_XTS_DESTROY_REG, 1);
+
+    len -= next_block;
+    data_bytes += next_block;
+    flash_addr += next_block;
+  }
+
+  result = esp_rom_spiflash_wait_idle();
+
+done_encrypt_write_4B:
+  esp_rom_spiflash_write_encrypted_disable();
+  return result;
+}
+#endif // ESP32S3 && !ESP32S3BETA2
 
 esp_command_error handle_flash_begin(uint32_t total_size, uint32_t offset) {
   fs.in_flash_mode = true;
@@ -397,6 +497,12 @@ void handle_flash_encrypt_data(void *data_buf, uint32_t length) {
   /* do the actual write */
 #if ESP32
   res = esp_rom_spiflash_write_encrypted(fs.next_write, data_buf, length);
+#elif defined(ESP32S3) && !defined(ESP32S3BETA2)
+  if (large_flash_mode){
+    res = SPI_Encrypt_Write_4B(fs.next_write, data_buf, length);
+  } else {
+    res = SPI_Encrypt_Write(fs.next_write, data_buf, length);
+  }
 #else
   res = SPI_Encrypt_Write(fs.next_write, data_buf, length);
 #endif

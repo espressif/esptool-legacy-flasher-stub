@@ -353,4 +353,9 @@ esp_rom_spiflash_result_t esp_rom_opiflash_wren();
 esp_rom_spiflash_result_t esp_rom_opiflash_erase_sector(uint32_t sector_num);
 esp_rom_spiflash_result_t esp_rom_opiflash_erase_block_64k(uint32_t block_num);
 SpiFlashOpResult SPI_write_enable(esp_rom_spiflash_chip_t *spi);
+
+void esp_rom_spiflash_write_encrypted_enable();
+void esp_rom_spiflash_write_encrypted_disable();
+SpiFlashOpResult esp_rom_spiflash_unlock();
+SpiFlashOpResult esp_rom_spiflash_wait_idle(void);
 #endif // ESP32S3
