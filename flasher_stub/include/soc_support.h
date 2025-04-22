@@ -24,6 +24,18 @@
 #define REG_SET_MASK(reg, mask) WRITE_REG((reg), (READ_REG(reg)|(mask)))
 #define REG_CLR_MASK(reg, mask) WRITE_REG((reg), (READ_REG(reg)&(~(mask))))
 #define REG_SET_FIELD(_r, _f, _v) (WRITE_REG((_r),((READ_REG(_r) & ~((_f) << (_f##_S)))|(((_v) & (_f))<<(_f##_S)))))
+#define REG_GET_FIELD(_r, _f) ((READ_REG(_r) >> (_f##_S)) & (_f##_V))
+#define REG_SET_BIT(_r, _b)                                           \
+   do                                                                  \
+   {                                                                   \
+     *(volatile uint32_t *)(_r) = (*(volatile uint32_t *)(_r)) | (_b); \
+   } while (0)
+
+#define REG_CLR_BIT(_r, _b)                                              \
+   do                                                                     \
+   {                                                                      \
+     *(volatile uint32_t *)(_r) = (*(volatile uint32_t *)(_r)) & (~(_b)); \
+   } while (0)
 
 #define ESP32_OR_LATER   !(ESP8266)
 #define ESP32S2_OR_LATER !(ESP8266 || ESP32)
@@ -124,6 +136,7 @@
 #define USB_DEVICE_BASE_REG 0x60038000
 #define SYSTEM_BASE_REG     0x600C0000
 #define DR_REG_IO_MUX_BASE  0x60009000
+#define DR_REG_AES_XTS_BASE 0x600CC000
 #endif
 
 #ifdef ESP32S3BETA2
@@ -644,3 +657,20 @@
 #define PERIPHS_IO_MUX_SPICS0_U           (DR_REG_IO_MUX_BASE + 0x78)
 #define FUNC_GPIO 1
 #endif // ESP32P4
+
+/**********************************************************
+ * AES-XTS peripheral
+ */
+
+#if ESP32S3
+#define MAX_ENCRYPT_BLOCK 64
+
+#define AES_XTS_PLAIN_BASE               ((DR_REG_AES_XTS_BASE) + 0x00)
+#define AES_XTS_SIZE_REG                 ((DR_REG_AES_XTS_BASE) + 0x40)
+#define AES_XTS_DESTINATION_REG          ((DR_REG_AES_XTS_BASE) + 0x44)
+#define AES_XTS_PHYSICAL_ADDR_REG        ((DR_REG_AES_XTS_BASE) + 0x48)
+#define AES_XTS_TRIGGER_REG              ((DR_REG_AES_XTS_BASE) + 0x4C)
+#define AES_XTS_RELEASE_REG              ((DR_REG_AES_XTS_BASE) + 0x50)
+#define AES_XTS_DESTROY_REG              ((DR_REG_AES_XTS_BASE) + 0x54)
+#define AES_XTS_STATE_REG                ((DR_REG_AES_XTS_BASE) + 0x58)
+#endif // ESP32S3
