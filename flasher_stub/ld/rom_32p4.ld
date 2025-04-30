@@ -77,6 +77,9 @@ ets_set_user_start = 0x4fc000c4;
 ets_rom_layout_p = 0x4fc1fffc;
 ets_ops_table_ptr = 0x4ff3fff4;
 g_saved_pc = 0x4ff3fff8;
+memcpy = 0x4fc0026c;
+esp_rom_opiflash_exec_cmd_eco1 = 0x4fc0fe76;
+esp_rom_opiflash_exec_cmd_eco2 = 0x4fc10320;
 
 
 /***************************************
@@ -617,3 +620,12 @@ usb_dev_deinit = 0x4fc00a44;
 usb_dw_ctrl_deinit = 0x4fc00a48;
 /* Data (.data, .bss, .rodata) */
 s_usb_osglue = 0x4ff3ffc8;
+
+
+/***************************************
+ ROM version variables for esp32p4
+ These addresses should be compatible with any ROM version for this chip.
+ ***************************************/
+
+_rom_chip_id = 0x4fc00010;
+_rom_eco_version = 0x4fc00014;
