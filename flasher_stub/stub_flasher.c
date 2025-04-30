@@ -48,6 +48,39 @@ static uint8_t calculate_checksum(uint8_t *buf, int length)
   return res;
 }
 
+#if ESP32P4
+void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
+  uint32_t cmd, int cmd_bit_len,
+  uint32_t addr, int addr_bit_len,
+  int dummy_bits,
+  uint8_t* mosi_data, int mosi_bit_len,
+  uint8_t* miso_data, int miso_bit_len,
+  uint32_t cs_mask,
+  bool is_write_erase_operation)
+{
+
+  if (_rom_eco_version == 2) {
+      esp_rom_opiflash_exec_cmd_eco2(spi_num, mode,
+          cmd, cmd_bit_len,
+          addr, addr_bit_len,
+          dummy_bits,
+          mosi_data, mosi_bit_len,
+          miso_data, miso_bit_len,
+          cs_mask,
+          is_write_erase_operation);
+  } else {
+      esp_rom_opiflash_exec_cmd_eco1(spi_num, mode,
+          cmd, cmd_bit_len,
+          addr, addr_bit_len,
+          dummy_bits,
+          mosi_data, mosi_bit_len,
+          miso_data, miso_bit_len,
+          cs_mask,
+          is_write_erase_operation);
+  }
+}
+#endif // ESP32P4
+
 #if USE_MAX_CPU_FREQ
 static bool can_use_max_cpu_freq()
 {
@@ -123,7 +156,7 @@ static void disable_watchdogs()
 }
 #endif // WITH_USB_JTAG_SERIAL
 
-#if ESP32S3 && !ESP32S3BETA2
+#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
 bool large_flash_mode = false;
 
 bool flash_larger_than_16mb()
@@ -141,7 +174,7 @@ bool flash_larger_than_16mb()
   uint8_t flid_lowbyte = (flash_id >> 16) & 0xFF;
   return ((flid_lowbyte >= 0x19 && flid_lowbyte < 0x30) || (flid_lowbyte >= 0x39)); // See DETECTED_FLASH_SIZES in esptool
 }
-#endif // ESP32S3
+#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4
 
 static void stub_handle_rx_byte(char byte)
 {
@@ -523,6 +556,8 @@ void stub_main()
       esp_rom_opiflash_legacy_driver_init(&flash_driver);
       esp_rom_opiflash_wait_idle();
     }
+  #elif ESP32P4
+    large_flash_mode = flash_larger_than_16mb();
   #endif //ESP32S3 && !ESP32S3BETA2
   SPIParamCfg(0, FLASH_MAX_SIZE, FLASH_BLOCK_SIZE, FLASH_SECTOR_SIZE,
               FLASH_PAGE_SIZE, FLASH_STATUS_MASK);

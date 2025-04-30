@@ -662,15 +662,26 @@
  * AES-XTS peripheral
  */
 
-#if ESP32S3
 #define MAX_ENCRYPT_BLOCK 64
 
-#define AES_XTS_PLAIN_BASE               ((DR_REG_AES_XTS_BASE) + 0x00)
-#define AES_XTS_SIZE_REG                 ((DR_REG_AES_XTS_BASE) + 0x40)
-#define AES_XTS_DESTINATION_REG          ((DR_REG_AES_XTS_BASE) + 0x44)
-#define AES_XTS_PHYSICAL_ADDR_REG        ((DR_REG_AES_XTS_BASE) + 0x48)
-#define AES_XTS_TRIGGER_REG              ((DR_REG_AES_XTS_BASE) + 0x4C)
-#define AES_XTS_RELEASE_REG              ((DR_REG_AES_XTS_BASE) + 0x50)
-#define AES_XTS_DESTROY_REG              ((DR_REG_AES_XTS_BASE) + 0x54)
-#define AES_XTS_STATE_REG                ((DR_REG_AES_XTS_BASE) + 0x58)
+#if ESP32S3
+#define AES_XTS_PLAIN_BASE               (DR_REG_AES_XTS_BASE + 0x00)
+#define AES_XTS_SIZE_REG                 (DR_REG_AES_XTS_BASE + 0x40)
+#define AES_XTS_DESTINATION_REG          (DR_REG_AES_XTS_BASE + 0x44)
+#define AES_XTS_PHYSICAL_ADDR_REG        (DR_REG_AES_XTS_BASE + 0x48)
+#define AES_XTS_TRIGGER_REG              (DR_REG_AES_XTS_BASE + 0x4C)
+#define AES_XTS_RELEASE_REG              (DR_REG_AES_XTS_BASE + 0x50)
+#define AES_XTS_DESTROY_REG              (DR_REG_AES_XTS_BASE + 0x54)
+#define AES_XTS_STATE_REG                (DR_REG_AES_XTS_BASE + 0x58)
 #endif // ESP32S3
+
+#if ESP32P4
+#define AES_XTS_PLAIN_BASE               (SPI0_BASE_REG + 0x300)
+#define AES_XTS_SIZE_REG                 (SPI0_BASE_REG + 0x340)
+#define AES_XTS_DESTINATION_REG          (SPI0_BASE_REG + 0x344)
+#define AES_XTS_PHYSICAL_ADDR_REG        (SPI0_BASE_REG + 0x348)
+#define AES_XTS_TRIGGER_REG              (SPI0_BASE_REG + 0x34C)
+#define AES_XTS_RELEASE_REG              (SPI0_BASE_REG + 0x350)
+#define AES_XTS_DESTROY_REG              (SPI0_BASE_REG + 0x354)
+#define AES_XTS_STATE_REG                (SPI0_BASE_REG + 0x358)
+#endif // ESP32P4

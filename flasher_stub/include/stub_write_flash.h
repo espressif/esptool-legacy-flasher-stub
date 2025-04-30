@@ -26,5 +26,9 @@ void handle_flash_encrypt_data(void *data_buf, uint32_t length);
 
 void handle_flash_deflated_data(void *data_buf, uint32_t length);
 
+#if ESP32P4
+void spi_write_enable(void);
+#endif
+
 /* same command used for deflated or non-deflated mode */
 esp_command_error handle_flash_end(void);

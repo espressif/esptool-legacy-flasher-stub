@@ -181,7 +181,7 @@ typedef struct {
 UartDevice * GetUartDevice();
 #endif // WITH_USB_JTAG_SERIAL || WITH_USB_OTG
 
-#if defined(ESP32S3)
+#if defined(ESP32S3) || defined(ESP32P4)
 #define BIT(nr)                 (1UL << (nr))
 #define ESP_ROM_OPIFLASH_SEL_CS0     (BIT(0))
 
@@ -348,6 +348,27 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
     uint32_t cs_mask,
     bool is_write_erase_operation);
 
+#if ESP32P4
+extern uint32_t _rom_eco_version; // rom constant to define ECO version
+void esp_rom_opiflash_exec_cmd_eco1(int spi_num, SpiFlashRdMode mode,
+    uint32_t cmd, int cmd_bit_len,
+    uint32_t addr, int addr_bit_len,
+    int dummy_bits,
+    uint8_t* mosi_data, int mosi_bit_len,
+    uint8_t* miso_data, int miso_bit_len,
+    uint32_t cs_mask,
+    bool is_write_erase_operation);
+
+void esp_rom_opiflash_exec_cmd_eco2(int spi_num, SpiFlashRdMode mode,
+    uint32_t cmd, int cmd_bit_len,
+    uint32_t addr, int addr_bit_len,
+    int dummy_bits,
+    uint8_t* mosi_data, int mosi_bit_len,
+    uint8_t* miso_data, int miso_bit_len,
+    uint32_t cs_mask,
+    bool is_write_erase_operation);
+#endif // ESP32P4
+
 esp_rom_spiflash_result_t esp_rom_opiflash_wait_idle();
 esp_rom_spiflash_result_t esp_rom_opiflash_wren();
 esp_rom_spiflash_result_t esp_rom_opiflash_erase_sector(uint32_t sector_num);
@@ -358,4 +379,4 @@ void esp_rom_spiflash_write_encrypted_enable();
 void esp_rom_spiflash_write_encrypted_disable();
 SpiFlashOpResult esp_rom_spiflash_unlock();
 SpiFlashOpResult esp_rom_spiflash_wait_idle(void);
-#endif // ESP32S3
+#endif // ESP32S3 || ESP32P4
