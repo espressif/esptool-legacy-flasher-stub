@@ -1,3 +1,13 @@
+## v1.5.0 (2025-05-02)
+
+### New Features
+
+- **esp32p4**: Add support for >16 MB flash sizes
+
+### Bug Fixes
+
+- **esp32s3**: Enable encrypted writes to flash areas >16MB
+
 ## v1.4.0 (2024-12-04)
 
 ### New Features
