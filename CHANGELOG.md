@@ -1,3 +1,9 @@
+## v1.5.1 (2025-05-13)
+
+### Bug Fixes
+
+- **esp32c5**: Fix writing to flash on ECO2
+
 ## v1.5.0 (2025-05-02)
 
 ### New Features
