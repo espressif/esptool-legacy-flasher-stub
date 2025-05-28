@@ -36,6 +36,8 @@ static struct {
   tinfl_decompressor inflator;
   /* number of compressed bytes remaining to read */
   uint32_t remaining_compressed;
+  /* flag to indicate if this is the first data write */
+  bool first_data_write;
 } fs;
 
 /* SPI status bits */
@@ -304,6 +306,7 @@ esp_command_error handle_flash_begin(uint32_t total_size, uint32_t offset) {
   fs.remaining = total_size;
   fs.remaining_erase_sector = ((offset % FLASH_SECTOR_SIZE) + total_size + FLASH_SECTOR_SIZE - 1) / FLASH_SECTOR_SIZE;
   fs.last_error = ESP_OK;
+  fs.first_data_write = true;
 
 #if defined(ESP32S3) && !defined(ESP32S3BETA2)
   if (large_flash_mode) {
@@ -488,13 +491,80 @@ void handle_flash_data(void *data_buf, uint32_t length) {
       return;
   }
 
-  /* what sector is this write going to end in?
-     make sure we've erased at least that far.
-  */
-  last_sector = (fs.next_write + length) / FLASH_SECTOR_SIZE;
-  while(fs.remaining_erase_sector > 0 && fs.next_erase_sector <= last_sector) {
-    start_next_erase();
+  // Handle unaligned first write
+  if (fs.first_data_write && fs.next_write % FLASH_SECTOR_SIZE != 0) {
+    uint32_t sector_start = (fs.next_write / FLASH_SECTOR_SIZE) * FLASH_SECTOR_SIZE;
+    uint32_t offset = fs.next_write - sector_start;
+    // Round up to nearest multiple of 4
+    uint32_t aligned_offset = (offset + 3) & ~3;
+    uint8_t buffer[aligned_offset];
+
+    while(!spiflash_is_ready()) {
+    }
+
+    res = SPIRead(sector_start, buffer, aligned_offset);
+    if (res != 0) {
+        fs.last_error = ESP_FAILED_SPI_OP;
+        return;
+    }
+
+    /* what sector is this write going to end in?
+       make sure we've erased at least that far.
+    */
+    last_sector = (fs.next_write + length) / FLASH_SECTOR_SIZE;
+    while(fs.remaining_erase_sector > 0 && fs.next_erase_sector <= last_sector) {
+        start_next_erase();
+    }
+
+    while(!spiflash_is_ready()) {
+    }
+
+    res = SPIWrite(sector_start, buffer, aligned_offset);
+    if (res != 0) {
+        fs.last_error = ESP_FAILED_SPI_OP;
+        return;
+    }
+  // Handle unaligned last write
+  } else if (length >= fs.remaining && (fs.next_write + length) % FLASH_SECTOR_SIZE != 0) {
+    uint32_t end_addr = fs.next_write + length;
+    uint32_t read_size = (FLASH_SECTOR_SIZE - (end_addr % FLASH_SECTOR_SIZE)) % FLASH_SECTOR_SIZE;
+
+    uint8_t buffer[read_size];
+
+    res = SPIRead(end_addr, buffer, read_size);
+    if (res != 0) {
+        fs.last_error = ESP_FAILED_SPI_OP;
+        return;
+    }
+
+    /* what sector is this write going to end in?
+       make sure we've erased at least that far.
+    */
+    last_sector = (fs.next_write + length) / FLASH_SECTOR_SIZE;
+    while(fs.remaining_erase_sector > 0 && fs.next_erase_sector <= last_sector) {
+        start_next_erase();
+    }
+
+    while(!spiflash_is_ready()) {
+    }
+
+    res = SPIWrite(end_addr, buffer, read_size);
+    if (res != 0) {
+        fs.last_error = ESP_FAILED_SPI_OP;
+        return;
+    }
+  } else {
+    /* what sector is this write going to end in?
+       make sure we've erased at least that far.
+    */
+    last_sector = (fs.next_write + length) / FLASH_SECTOR_SIZE;
+    while(fs.remaining_erase_sector > 0 && fs.next_erase_sector <= last_sector) {
+        start_next_erase();
+    }
   }
+
+  fs.first_data_write = false;
+
   while(!spiflash_is_ready())
     {}
 
