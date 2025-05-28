@@ -262,7 +262,6 @@
 
 #define ETS_UART0_INUM 5
 
-
 /**********************************************************
  * SPI peripheral
  *
@@ -421,7 +420,6 @@
 #define USB_GAHBCFG_REG    (USB_BASE_REG + 0x8)
 #define USB_GLBLLNTRMSK    (1 << 0)
 
-
 /**********************************************************
  * RTC_CNTL peripheral
  */
@@ -470,9 +468,9 @@
 
 #define RTC_CNTL_WDT_WKEY             0x50D83AA1
 #ifdef ESP32P4
-    #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 2)
+#define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 2)
 #else
-    #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 0)
+#define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 0)
 #endif // ESP32P4
 
 /**********************************************************

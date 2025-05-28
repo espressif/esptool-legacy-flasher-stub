@@ -30,7 +30,8 @@ void ets_delay_us(uint32_t us);
 
 typedef enum { SPI_FLASH_RESULT_OK = 0,
                SPI_FLASH_RESULT_ERR = 1,
-               SPI_FLASH_RESULT_TIMEOUT = 2 } SpiFlashOpResult;
+               SPI_FLASH_RESULT_TIMEOUT = 2
+             } SpiFlashOpResult;
 
 SpiFlashOpResult SPILock();
 SpiFlashOpResult SPIUnlock();
@@ -88,7 +89,6 @@ typedef struct {
     uint32_t status_mask;
 } esp_rom_spiflash_chip_t;
 
-
 typedef void (*int_handler_t)(void *arg);
 int_handler_t ets_isr_attach(uint32_t int_num, int_handler_t handler,
                              void *arg);
@@ -102,14 +102,14 @@ SpiFlashOpResult esp_rom_spiflash_write_encrypted(uint32_t addr, const uint8_t *
 #else
 void SPI_Write_Encrypt_Enable();
 void SPI_Write_Encrypt_Disable();
-SpiFlashOpResult SPI_Encrypt_Write(uint32_t flash_addr, const void* data, uint32_t len);
+SpiFlashOpResult SPI_Encrypt_Write(uint32_t flash_addr, const void *data, uint32_t len);
 #endif
 
 #if ESP32S2_OR_LATER
-uint32_t GetSecurityInfoProc(int* pMsg, int* pnErr, uint8_t *buf);  // pMsg and pnErr unused in ROM
+uint32_t GetSecurityInfoProc(int *pMsg, int *pnErr, uint8_t *buf);  // pMsg and pnErr unused in ROM
 #if ESP32C3
 extern uint32_t _rom_eco_version; // rom constant to define ECO version
-uint32_t GetSecurityInfoProcNewEco(int* pMsg, int* pnErr, uint8_t *buf);  // GetSecurityInfo for C3 ECO7+
+uint32_t GetSecurityInfoProcNewEco(int *pMsg, int *pnErr, uint8_t *buf);  // GetSecurityInfo for C3 ECO7+
 #endif // ESP32C3
 SpiFlashOpResult SPI_read_status_high(esp_rom_spiflash_chip_t *spi, uint32_t *status);
 #else
@@ -139,7 +139,7 @@ void esprv_intc_int_set_priority(int intr_num, int priority);
 #define LINE_CTRL_DCD         (1 << 3)
 #define LINE_CTRL_DSR         (1 << 4)
 #define USBDC_PERSIST_ENA  (1<<31)
-void usb_dw_isr_handler(void* arg);
+void usb_dw_isr_handler(void *arg);
 typedef void cdc_acm_device;
 extern cdc_acm_device *uart_acm_dev;
 typedef void(*uart_irq_callback_t)(cdc_acm_device *dev, int status);
@@ -178,7 +178,7 @@ typedef struct {
     int     received;
 } UartDevice;
 
-UartDevice * GetUartDevice();
+UartDevice *GetUartDevice();
 #endif // WITH_USB_JTAG_SERIAL || WITH_USB_OTG
 
 #if defined(ESP32S3) || defined(ESP32P4)
@@ -340,33 +340,33 @@ bool ets_efuse_flash_octal_mode(void);
 #endif //ESP32S3BETA2
 
 void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
-    uint32_t cmd, int cmd_bit_len,
-    uint32_t addr, int addr_bit_len,
-    int dummy_bits,
-    uint8_t* mosi_data, int mosi_bit_len,
-    uint8_t* miso_data, int miso_bit_len,
-    uint32_t cs_mask,
-    bool is_write_erase_operation);
+                               uint32_t cmd, int cmd_bit_len,
+                               uint32_t addr, int addr_bit_len,
+                               int dummy_bits,
+                               uint8_t *mosi_data, int mosi_bit_len,
+                               uint8_t *miso_data, int miso_bit_len,
+                               uint32_t cs_mask,
+                               bool is_write_erase_operation);
 
 #if ESP32P4
 extern uint32_t _rom_eco_version; // rom constant to define ECO version
 void esp_rom_opiflash_exec_cmd_eco1(int spi_num, SpiFlashRdMode mode,
-    uint32_t cmd, int cmd_bit_len,
-    uint32_t addr, int addr_bit_len,
-    int dummy_bits,
-    uint8_t* mosi_data, int mosi_bit_len,
-    uint8_t* miso_data, int miso_bit_len,
-    uint32_t cs_mask,
-    bool is_write_erase_operation);
+                                    uint32_t cmd, int cmd_bit_len,
+                                    uint32_t addr, int addr_bit_len,
+                                    int dummy_bits,
+                                    uint8_t *mosi_data, int mosi_bit_len,
+                                    uint8_t *miso_data, int miso_bit_len,
+                                    uint32_t cs_mask,
+                                    bool is_write_erase_operation);
 
 void esp_rom_opiflash_exec_cmd_eco2(int spi_num, SpiFlashRdMode mode,
-    uint32_t cmd, int cmd_bit_len,
-    uint32_t addr, int addr_bit_len,
-    int dummy_bits,
-    uint8_t* mosi_data, int mosi_bit_len,
-    uint8_t* miso_data, int miso_bit_len,
-    uint32_t cs_mask,
-    bool is_write_erase_operation);
+                                    uint32_t cmd, int cmd_bit_len,
+                                    uint32_t addr, int addr_bit_len,
+                                    int dummy_bits,
+                                    uint8_t *mosi_data, int mosi_bit_len,
+                                    uint8_t *miso_data, int miso_bit_len,
+                                    uint32_t cs_mask,
+                                    bool is_write_erase_operation);
 #endif // ESP32P4
 
 esp_rom_spiflash_result_t esp_rom_opiflash_wait_idle();

@@ -24,9 +24,9 @@ void SLIP_send_frame_data_buf(const void *buf, uint32_t size);
 void SLIP_send(const void *pkt, uint32_t size);
 
 typedef enum {
-  SLIP_NO_FRAME,
-  SLIP_FRAME,
-  SLIP_FRAME_ESCAPING
+    SLIP_NO_FRAME,
+    SLIP_FRAME,
+    SLIP_FRAME_ESCAPING
 } slip_state_t;
 
 int16_t SLIP_recv_byte(char byte, slip_state_t *state);
