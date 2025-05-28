@@ -1,12 +1,12 @@
+# Run `pre-commit autoupdate` to update to the latest pre-commit hooks version.
+default_install_hook_types: [pre-commit, commit-msg]
 repos:
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.4.1
     hooks:
     - id: codespell
   - repo: https://github.com/espressif/conventional-precommit-linter
-    rev: v1.4.0
+    rev: v1.10.0
     hooks:
       - id: conventional-precommit-linter
         stages: [commit-msg]
-default_stages: [commit]
-default_install_hook_types: [pre-commit, commit-msg]

@@ -22,7 +22,7 @@ Please install the [pre-commit](https://pre-commit.com/) hooks to ensure that yo
 
 ```bash
 pip install pre-commit
-pre-commit install -t pre-commit -t commit-msg
+pre-commit install
 ```
 
 # How To Release (For Maintainers Only)
