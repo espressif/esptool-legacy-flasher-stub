@@ -1,3 +1,14 @@
+## v1.6.0 (2025-06-17)
+
+### New Features
+
+- **toolchain**: Update toolchain to esp-15.1.0_20250607
+
+### Bug Fixes
+
+- **esp32c61eco3**: Fix USB-Serial/JTAG mode
+- **esp32c5eco2**: Fix USB-Serial/JTAG mode
+
 ## v1.5.1 (2025-05-13)
 
 ### Bug Fixes
