@@ -188,6 +188,8 @@ spi_flash_read_encrypted = 0x40000200;
 rom_spiflash_legacy_funcs = 0x4085fff0;
 rom_spiflash_legacy_data = 0x4085ffec;
 g_flash_guard_ops = 0x4085fff4;
+memcpy = 0x40035b86;
+esp_rom_opiflash_exec_cmd = 0x4002c42a;
 
 
 /***************************************

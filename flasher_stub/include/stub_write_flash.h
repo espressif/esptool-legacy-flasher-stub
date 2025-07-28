@@ -26,7 +26,7 @@ void handle_flash_encrypt_data(void *data_buf, uint32_t length);
 
 void handle_flash_deflated_data(void *data_buf, uint32_t length);
 
-#if ESP32P4
+#if ESP32P4 || ESP32C5
 void spi_write_enable(void);
 #endif
 

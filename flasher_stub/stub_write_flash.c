@@ -136,7 +136,7 @@ SpiFlashOpResult SPIUnlock(void)
 }
 #endif // ESP32_OR_LATER
 
-#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
 static esp_rom_spiflash_result_t page_program_internal(int spi_num, uint32_t spi_addr, uint8_t* addr_source, uint32_t byte_length)
 {
     uint32_t  temp_addr;
@@ -295,7 +295,7 @@ done_encrypt_write_4B:
   esp_rom_spiflash_write_encrypted_disable();
   return result;
 }
-#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
 
 esp_command_error handle_flash_begin(uint32_t total_size, uint32_t offset) {
   fs.in_flash_mode = true;
@@ -499,7 +499,7 @@ void handle_flash_data(void *data_buf, uint32_t length) {
     {}
 
   /* do the actual write */
-  #if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+  #if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
       if (large_flash_mode){
         res = SPIWrite4B(1, fs.next_write, data_buf, length);
       } else {
@@ -551,7 +551,7 @@ void handle_flash_encrypt_data(void *data_buf, uint32_t length) {
   /* do the actual write */
 #if ESP32
   res = esp_rom_spiflash_write_encrypted(fs.next_write, data_buf, length);
-#elif (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+#elif (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
   if (large_flash_mode){
     res = SPI_Encrypt_Write_4B(fs.next_write, data_buf, length);
   } else {

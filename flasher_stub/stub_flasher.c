@@ -156,7 +156,7 @@ static void disable_watchdogs()
 }
 #endif // WITH_USB_JTAG_SERIAL
 
-#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
 bool large_flash_mode = false;
 
 bool flash_larger_than_16mb()
@@ -174,7 +174,7 @@ bool flash_larger_than_16mb()
   uint8_t flid_lowbyte = (flash_id >> 16) & 0xFF;
   return ((flid_lowbyte >= 0x19 && flid_lowbyte < 0x30) || (flid_lowbyte >= 0x39)); // See DETECTED_FLASH_SIZES in esptool
 }
-#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
 
 static void stub_handle_rx_byte(char byte)
 {
@@ -556,7 +556,7 @@ void stub_main()
       esp_rom_opiflash_legacy_driver_init(&flash_driver);
       esp_rom_opiflash_wait_idle();
     }
-  #elif ESP32P4
+  #elif ESP32P4 || ESP32C5
     large_flash_mode = flash_larger_than_16mb();
   #endif //ESP32S3 && !ESP32S3BETA2
   SPIParamCfg(0, FLASH_MAX_SIZE, FLASH_BLOCK_SIZE, FLASH_SECTOR_SIZE,

@@ -13,7 +13,7 @@
 #include "soc_support.h"
 #include "stub_io.h"
 
-#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
 static esp_rom_spiflash_result_t SPIRead4B(int spi_num, uint32_t flash_addr, uint8_t* buf, int len)
 {
     uint8_t cmd_len = 8;
@@ -41,7 +41,7 @@ static esp_rom_spiflash_result_t SPIRead4B(int spi_num, uint32_t flash_addr, uin
     }
     return ESP_ROM_SPIFLASH_RESULT_OK;
 }
-#endif // ESP32S3
+#endif // ESP32S3 || ESP32P4 || ESP32C5
 
 int handle_flash_erase(uint32_t addr, uint32_t len) {
   if (addr % FLASH_SECTOR_SIZE != 0) return 0x32;
@@ -55,7 +55,7 @@ int handle_flash_erase(uint32_t addr, uint32_t len) {
         } else {
           if (SPIEraseSector(addr / FLASH_SECTOR_SIZE) != 0) return 0x35;
         }
-    #elif ESP32P4
+    #elif ESP32P4 || ESP32C5
         if (large_flash_mode) {
           spi_write_enable();
           esp_rom_spiflash_wait_idle();
@@ -84,7 +84,7 @@ int handle_flash_erase(uint32_t addr, uint32_t len) {
       } else {
         if (SPIEraseBlock(addr / FLASH_BLOCK_SIZE) != 0) return 0x36;
       }
-    #elif ESP32P4
+    #elif ESP32P4 || ESP32C5
       if (large_flash_mode) {
         spi_write_enable();
         esp_rom_spiflash_wait_idle();
@@ -113,7 +113,7 @@ int handle_flash_erase(uint32_t addr, uint32_t len) {
       } else {
         if (SPIEraseSector(addr / FLASH_SECTOR_SIZE) != 0) return 0x37;
       }
-    #elif ESP32P4
+    #elif ESP32P4 || ESP32C5
       if (large_flash_mode) {
         spi_write_enable();
         esp_rom_spiflash_wait_idle();
@@ -157,7 +157,7 @@ void handle_flash_read(uint32_t addr, uint32_t len, uint32_t block_size,
     while (num_sent < len && num_sent - num_acked < max_in_flight) {
       uint32_t n = len - num_sent;
       if (n > block_size) n = block_size;
-      #if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+      #if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
         if (large_flash_mode) {
           res = SPIRead4B(1, addr, buf, n);
         } else {
@@ -197,7 +197,7 @@ int handle_flash_get_md5sum(uint32_t addr, uint32_t len) {
     if (n > FLASH_SECTOR_SIZE) {
       n = FLASH_SECTOR_SIZE;
     }
-    #if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+    #if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
       if (large_flash_mode) {
         res = SPIRead4B(1, addr, buf, n);
       } else {
