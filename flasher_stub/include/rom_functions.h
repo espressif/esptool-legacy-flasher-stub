@@ -181,7 +181,7 @@ typedef struct {
 UartDevice * GetUartDevice();
 #endif // WITH_USB_JTAG_SERIAL || WITH_USB_OTG
 
-#if defined(ESP32S3) || defined(ESP32P4)
+#if defined(ESP32S3) || defined(ESP32P4) || defined(ESP32C5)
 #define BIT(nr)                 (1UL << (nr))
 #define ESP_ROM_OPIFLASH_SEL_CS0     (BIT(0))
 
@@ -379,4 +379,4 @@ void esp_rom_spiflash_write_encrypted_enable();
 void esp_rom_spiflash_write_encrypted_disable();
 SpiFlashOpResult esp_rom_spiflash_unlock();
 SpiFlashOpResult esp_rom_spiflash_wait_idle(void);
-#endif // ESP32S3 || ESP32P4
+#endif // ESP32S3 || ESP32P4 || ESP32C5

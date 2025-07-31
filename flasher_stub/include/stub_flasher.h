@@ -20,8 +20,8 @@
 #define FLASH_STATUS_MASK 0xFFFF
 #define SECTORS_PER_BLOCK (FLASH_BLOCK_SIZE / FLASH_SECTOR_SIZE)
 
-/* 32-bit addressing is supported only by ESP32S3 and ESP32P4 */
-#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4
+/* 32-bit addressing is supported only by ESP32S3, ESP32P4 and ESP32C5 */
+#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
 #define FLASH_MAX_SIZE 64*1024*1024
 extern bool large_flash_mode;
 #else
