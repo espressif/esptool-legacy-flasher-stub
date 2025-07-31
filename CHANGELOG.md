@@ -1,3 +1,9 @@
+## v1.7.0 (2025-07-31)
+
+### New Features
+
+- **esp32c5**: Add support for >16 MB flash sizes
+
 ## v1.6.0 (2025-06-17)
 
 ### New Features
