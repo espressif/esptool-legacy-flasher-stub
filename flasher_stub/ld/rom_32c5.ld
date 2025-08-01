@@ -483,3 +483,10 @@ usb_serial_device_rx_one_char_block = 0x40000abc;
 usb_serial_device_tx_flush = 0x40000ac0;
 usb_serial_device_tx_one_char = 0x40000ac4;
 
+
+/***************************************
+ ROM version variables for esp32c5
+ These addresses should be compatible with any ROM version for this chip.
+ ***************************************/
+
+_rom_eco_version = 0x40000014;
