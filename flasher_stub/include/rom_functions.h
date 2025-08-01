@@ -348,6 +348,10 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
     uint32_t cs_mask,
     bool is_write_erase_operation);
 
+#if ESP32C5
+extern uint32_t _rom_eco_version; // rom constant to define ECO version
+#endif // ESP32C5
+
 #if ESP32P4
 extern uint32_t _rom_eco_version; // rom constant to define ECO version
 void esp_rom_opiflash_exec_cmd_eco1(int spi_num, SpiFlashRdMode mode,
