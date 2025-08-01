@@ -1,3 +1,9 @@
+## v1.7.1 (2025-08-01)
+
+### Bug Fixes
+
+- **esp32c5**: Restrict >16MB flash support to ECO2 and later
+
 ## v1.7.0 (2025-07-31)
 
 ### New Features
