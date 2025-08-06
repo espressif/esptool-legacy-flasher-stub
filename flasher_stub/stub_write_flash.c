@@ -402,7 +402,7 @@ static void start_next_erase(void)
           WRITE_REG(SPI_CMD_REG, command);
           while(READ_REG(SPI_CMD_REG) != 0) { }
       }
-      #elif ESP32P4
+      #elif ESP32P4 || ESP32C5
       if (large_flash_mode) {
         esp_rom_spiflash_wait_idle();
         spi_write_enable();
