@@ -1,3 +1,9 @@
+## v1.7.2 (2025-08-06)
+
+### Bug Fixes
+
+- **esp32c5**: Erase during flashing above 16MB
+
 ## v1.7.1 (2025-08-01)
 
 ### Bug Fixes
