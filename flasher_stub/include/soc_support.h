@@ -83,17 +83,17 @@
 #define IS_RISCV 1
 #endif // ESP32H2
 
-#ifdef ESP32P4
+#if defined(ESP32P4) || defined(ESP32P4RC1)
 #define WITH_USB_JTAG_SERIAL 1
 #define WITH_USB_OTG 1
 #define IS_RISCV 1
-#endif // ESP32P4
+#endif // ESP32P4 || ESP32P4RC1
 
 // Increase CPU freq to speed up read/write operations over USB
 // Disabled on the S3 due to stability issues, would require dbias adjustment.
 // https://github.com/espressif/esptool/issues/832, https://github.com/espressif/esptool/issues/808
 // Disabled for P4 because it is already running on high (360MHz) CPU frequency
-#define USE_MAX_CPU_FREQ ((WITH_USB_JTAG_SERIAL || WITH_USB_OTG) && !ESP32S3 && !ESP32P4)
+#define USE_MAX_CPU_FREQ ((WITH_USB_JTAG_SERIAL || WITH_USB_OTG) && !ESP32S3 && !(ESP32P4 || ESP32P4RC1))
 
 // Later chips don't support ets_efuse_get_spiconfig.
 #define SUPPORT_CONFIG_SPI (ESP32 || ESP32S2 || ESP32S3 || ESP32S3BETA2 || ESP32C3 || ESP32H2BETA1 || ESP32H2BETA2 || ESP32C6BETA)
@@ -217,7 +217,7 @@
 #define DR_REG_IO_MUX_BASE  0x60009000
 #endif
 
-#ifdef ESP32P4
+#if defined(ESP32P4) || defined(ESP32P4RC1)
 #define UART_BASE_REG       0x500CA000 /* UART0 */
 #define SPI_BASE_REG        0x5008D000 /* SPI peripheral 1, used for SPI flash */
 #define SPI0_BASE_REG       0x5008C000 /* SPI peripheral 0, inner state machine */
@@ -396,7 +396,7 @@
 #define ETS_USB_INUM 17  /* arbitrary level 1 level interrupt */
 #endif // ESP32H2
 
-#if ESP32P4
+#if ESP32P4 || ESP32P4RC1
 #define UART_USB_OTG  5
 #define UART_USB_JTAG_SERIAL  6
 
@@ -449,7 +449,7 @@
 #define RTC_CNTL_SWD_AUTO_FEED_EN     (1 << 31)
 #endif
 
-#if ESP32C61 || ESP32C6 || ESP32C5 || ESP32C5BETA3 || ESP32P4
+#if ESP32C61 || ESP32C6 || ESP32C5 || ESP32C5BETA3 || ESP32P4 || ESP32P4RC1
 #define RTC_CNTL_WDTCONFIG0_REG       (DR_REG_LP_WDT_BASE + 0x0)     // LP_WDT_RWDT_CONFIG0_REG
 #define RTC_CNTL_OPTION1_REG          (DR_REG_LP_SYS_BASE + 0x08)    // LP_SYSTEM_REG_SYS_CTRL_REG
 #define RTC_CNTL_WDTWPROTECT_REG      (DR_REG_LP_WDT_BASE + 0x0018)  // LP_WDT_RWDT_WPROTECT_REG
@@ -469,11 +469,11 @@
 #endif
 
 #define RTC_CNTL_WDT_WKEY             0x50D83AA1
-#ifdef ESP32P4
+#if defined(ESP32P4) || defined(ESP32P4RC1)
     #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 2)
 #else
     #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 0)
-#endif // ESP32P4
+#endif // ESP32P4 || ESP32P4RC1
 
 /**********************************************************
  * SYSTEM registers
@@ -584,9 +584,9 @@
 #define ROM_SPIFLASH_LEGACY         0x4085fff0
 #endif // ESP32C5
 
-#if ESP32P4
+#if ESP32P4 || ESP32P4RC1
 #define ROM_SPIFLASH_LEGACY         0x4ff3ffec
-#endif // ESP32P4
+#endif // ESP32P4 || ESP32P4RC1
 
 /**********************************************************
  * IO-MUX peripheral
@@ -654,13 +654,13 @@
 #define FUNC_GPIO 1
 #endif // ESP32H2 || ESP32H2BETA1 || ESP32H2BETA2
 
-#if ESP32P4
+#if ESP32P4 || ESP32P4RC1
 #define PERIPHS_IO_MUX_SPICLK_U           (DR_REG_IO_MUX_BASE + 0x7c)
 #define PERIPHS_IO_MUX_SPIQ_U             (DR_REG_IO_MUX_BASE + 0x80)
 #define PERIPHS_IO_MUX_SPID_U             (DR_REG_IO_MUX_BASE + 0x84)
 #define PERIPHS_IO_MUX_SPICS0_U           (DR_REG_IO_MUX_BASE + 0x78)
 #define FUNC_GPIO 1
-#endif // ESP32P4
+#endif // ESP32P4 || ESP32P4RC1
 
 /**********************************************************
  * AES-XTS peripheral
@@ -679,7 +679,7 @@
 #define AES_XTS_STATE_REG                (DR_REG_AES_XTS_BASE + 0x58)
 #endif // ESP32S3
 
-#if ESP32P4 || ESP32C5
+#if ESP32P4 || ESP32P4RC1 || ESP32C5
 #define AES_XTS_PLAIN_BASE               (SPI0_BASE_REG + 0x300)
 #define AES_XTS_SIZE_REG                 (SPI0_BASE_REG + 0x340)
 #define AES_XTS_DESTINATION_REG          (SPI0_BASE_REG + 0x344)
@@ -688,4 +688,4 @@
 #define AES_XTS_RELEASE_REG              (SPI0_BASE_REG + 0x350)
 #define AES_XTS_DESTROY_REG              (SPI0_BASE_REG + 0x354)
 #define AES_XTS_STATE_REG                (SPI0_BASE_REG + 0x358)
-#endif // ESP32P4 || ESP32C5
+#endif // ESP32P4 || ESP32P4RC1 || ESP32C5

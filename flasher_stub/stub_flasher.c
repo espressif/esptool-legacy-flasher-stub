@@ -48,7 +48,7 @@ static uint8_t calculate_checksum(uint8_t *buf, int length)
   return res;
 }
 
-#if ESP32P4
+#if ESP32P4RC1
 void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
   uint32_t cmd, int cmd_bit_len,
   uint32_t addr, int addr_bit_len,
@@ -58,7 +58,6 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
   uint32_t cs_mask,
   bool is_write_erase_operation)
 {
-
   if (_rom_eco_version == 2) {
       esp_rom_opiflash_exec_cmd_eco2(spi_num, mode,
           cmd, cmd_bit_len,
@@ -79,7 +78,7 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
           is_write_erase_operation);
   }
 }
-#endif // ESP32P4
+#endif // ESP32P4RC1
 
 #if USE_MAX_CPU_FREQ
 static bool can_use_max_cpu_freq()
@@ -156,7 +155,7 @@ static void disable_watchdogs()
 }
 #endif // WITH_USB_JTAG_SERIAL
 
-#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
+#if (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32P4RC1 || ESP32C5
 bool large_flash_mode = false;
 
 bool flash_larger_than_16mb()
@@ -174,7 +173,7 @@ bool flash_larger_than_16mb()
   uint8_t flid_lowbyte = (flash_id >> 16) & 0xFF;
   return ((flid_lowbyte >= 0x19 && flid_lowbyte < 0x30) || (flid_lowbyte >= 0x39)); // See DETECTED_FLASH_SIZES in esptool
 }
-#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32C5
+#endif // (ESP32S3 && !ESP32S3BETA2) || ESP32P4 || ESP32P4RC1 || ESP32C5
 
 static void stub_handle_rx_byte(char byte)
 {
@@ -556,7 +555,7 @@ void stub_main()
       esp_rom_opiflash_legacy_driver_init(&flash_driver);
       esp_rom_opiflash_wait_idle();
     }
-  #elif ESP32P4
+  #elif ESP32P4 || ESP32P4RC1
     large_flash_mode = flash_larger_than_16mb();
   #elif ESP32C5
     // Older ECOs either do not have the necessary functions in ROM or the functions did not work correctly

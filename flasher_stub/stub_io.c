@@ -65,7 +65,7 @@ static void stub_configure_rx_uart(void)
 #if WITH_USB_JTAG_SERIAL
   if (stub_uses_usb_jtag_serial()) {
     #if IS_RISCV
-      #if ESP32P4 || ESP32C5 || ESP32C61
+      #if ESP32P4 || ESP32P4RC1 || ESP32C5 || ESP32C61
         WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM + CLIC_EXT_INTR_NUM_OFFSET);
       #else
         WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM);  // Route USB interrupt to CPU
@@ -155,7 +155,7 @@ static void stub_configure_rx_usb(void)
     intr_matrix_set(0, ETS_USB_INTR_SOURCE, ETS_USB_INUM);
   #elif ESP32S3
     WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM);
-  #elif ESP32P4
+  #elif ESP32P4 || ESP32P4RC1
     // Additional setting to solve missing DCONN event on ESP32P4 (IDF-9953).
     REG_SET_MASK(HP_SYS_USBOTG20_CTRL_REG, 1 << 21); /* set HP_SYS_OTG_SUSPENDM */
     WRITE_REG(INTERRUPT_CORE0_USB_OTG_INT_MAP_REG, ETS_USB_INUM + CLIC_EXT_INTR_NUM_OFFSET);

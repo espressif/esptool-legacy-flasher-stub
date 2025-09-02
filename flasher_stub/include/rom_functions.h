@@ -18,11 +18,11 @@ int uart_rx_one_char(uint8_t *ch);
 uint8_t uart_rx_one_char_block();
 int uart_tx_one_char(char ch);
 
-#if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32P4
+#if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32P4 || ESP32P4RC1
 /* uart_tx_one_char doesn't send data to USB device serial, needs to be replaced */
 int uart_tx_one_char2(char ch);
 #define uart_tx_one_char(ch) uart_tx_one_char2(ch)
-#endif // ESP32C61 ||ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32P4
+#endif // ESP32C61 ||ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32P4 || ESP32P4RC1
 
 void uart_div_modify(uint32_t uart_no, uint32_t baud_div);
 
@@ -181,7 +181,7 @@ typedef struct {
 UartDevice * GetUartDevice();
 #endif // WITH_USB_JTAG_SERIAL || WITH_USB_OTG
 
-#if defined(ESP32S3) || defined(ESP32P4) || defined(ESP32C5)
+#if defined(ESP32S3) || defined(ESP32P4) || defined(ESP32P4RC1) || defined(ESP32C5)
 #define BIT(nr)                 (1UL << (nr))
 #define ESP_ROM_OPIFLASH_SEL_CS0     (BIT(0))
 
@@ -352,7 +352,7 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
 extern uint32_t _rom_eco_version; // rom constant to define ECO version
 #endif // ESP32C5
 
-#if ESP32P4
+#if ESP32P4RC1
 extern uint32_t _rom_eco_version; // rom constant to define ECO version
 void esp_rom_opiflash_exec_cmd_eco1(int spi_num, SpiFlashRdMode mode,
     uint32_t cmd, int cmd_bit_len,
@@ -371,7 +371,7 @@ void esp_rom_opiflash_exec_cmd_eco2(int spi_num, SpiFlashRdMode mode,
     uint8_t* miso_data, int miso_bit_len,
     uint32_t cs_mask,
     bool is_write_erase_operation);
-#endif // ESP32P4
+#endif // ESP32P4RC1
 
 esp_rom_spiflash_result_t esp_rom_opiflash_wait_idle();
 esp_rom_spiflash_result_t esp_rom_opiflash_wren();
@@ -383,4 +383,4 @@ void esp_rom_spiflash_write_encrypted_enable();
 void esp_rom_spiflash_write_encrypted_disable();
 SpiFlashOpResult esp_rom_spiflash_unlock();
 SpiFlashOpResult esp_rom_spiflash_wait_idle(void);
-#endif // ESP32S3 || ESP32P4 || ESP32C5
+#endif // ESP32S3 || ESP32P4 || ESP32P4RC1 || ESP32C5
