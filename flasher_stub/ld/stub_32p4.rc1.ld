@@ -1,9 +1,6 @@
-/* l2ram: range 0x4FF0'0000 - 0x4FFC'0000
-   in use by rom range: 0x4FFA'96B8 - 0x4FFC'0000
- */
 MEMORY {
-  iram : org = 0x4FF50000, len = 0x10000
-  dram : org = 0x4FF60000, len = 0x20000
+  iram : org = 0x4FF10000, len = 0x4000
+  dram : org = 0x4FF50000, len = 0x18000
 }
 
 ENTRY(stub_main)
@@ -26,4 +23,4 @@ SECTIONS {
   } > dram
 }
 
-INCLUDE "rom_32p4.ld"
+INCLUDE "rom_32p4.rc1.ld"
