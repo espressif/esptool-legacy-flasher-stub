@@ -1,3 +1,9 @@
+## v1.8.0 (2025-09-10)
+
+### New Features
+
+- **esp32p4**: Bump up to ESP32-P4.eco5
+
 ## v1.7.2 (2025-08-06)
 
 ### Bug Fixes
