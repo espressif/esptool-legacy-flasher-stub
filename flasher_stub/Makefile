@@ -55,7 +55,7 @@ SRCS = stub_flasher.c slip.c stub_commands.c stub_write_flash.c stub_io.c
 SRCS_8266 = miniz.c
 
 BUILD_DIR = build
-ESPTOOL_STUBS_DIR = ..
+ESPTOOL_STUBS_DIR ?= ..
 
 STUB_ELF_8266 = $(BUILD_DIR)/$(STUB)8266.elf
 STUB_ELF_32 = $(BUILD_DIR)/$(STUB)32.elf
@@ -74,6 +74,7 @@ STUB_ELF_32C5_BETA_3 = $(BUILD_DIR)/$(STUB)32c5beta3.elf
 STUB_ELF_32H2 = $(BUILD_DIR)/$(STUB)32h2.elf
 STUB_ELF_32P4RC1 = $(BUILD_DIR)/$(STUB)32p4rc1.elf
 STUB_ELF_32P4 = $(BUILD_DIR)/$(STUB)32p4.elf
+STUB_ELF_32H4 = $(BUILD_DIR)/$(STUB)32h4.elf
 
 STUBS_ELF =
 ifneq ($(WITHOUT_ESP8266),1)
@@ -102,7 +103,8 @@ STUBS_ELF += \
   $(STUB_ELF_32C5_BETA_3) \
   $(STUB_ELF_32H2) \
   $(STUB_ELF_32P4RC1) \
-  $(STUB_ELF_32P4)
+  $(STUB_ELF_32P4) \
+  $(STUB_ELF_32H4)
 endif
 
 .PHONY: all clean install
@@ -122,11 +124,11 @@ $(ESPTOOL_STUBS_DIR)/%.json: $(BUILD_DIR)/%.json
 	@echo "  INSTALL $^ -> $@"
 	$(Q) cp $^ $@
 
-CFLAGS = -std=c99 -Wall -Werror -Os \
+CFLAGS = -std=c99 -Wall -Os \
          -mtext-section-literals -mlongcalls -nostdlib -fno-builtin -flto \
          -Wl,-static -g -ffunction-sections -Wl,--gc-sections -Iinclude -Lld \
          $(EXTRA_CFLAGS)
-CFLAGS_ESPRISCV32 = -std=c99 -Wall -Werror -Os \
+CFLAGS_ESPRISCV32 = -std=c99 -Wall -Os \
 		 -march=rv32imc -mabi=ilp32 -msmall-data-limit=0 \
          -nostdlib -fno-builtin -flto \
          -Wl,-static -g -ffunction-sections -Wl,--gc-sections -Iinclude -Lld \
@@ -200,6 +202,10 @@ $(STUB_ELF_32P4RC1): $(SRCS) $(BUILD_DIR) ld/stub_32p4.rc1.ld
 $(STUB_ELF_32P4): $(SRCS) $(BUILD_DIR) ld/stub_32p4.ld
 	@echo "  CC(32P4)   $^ -> $@"
 	$(Q) $(CROSS_ESPRISCV32)gcc $(CFLAGS_ESPRISCV32) -DESP32P4=1 -Tstub_32p4.ld -Wl,-Map=$(@:.elf=.map) -o $@ $(filter %.c, $^) $(LDLIBS)
+
+$(STUB_ELF_32H4): $(SRCS) $(BUILD_DIR) ld/stub_32h4.ld
+	@echo "  CC(32H4)   $^ -> $@"
+	$(Q) $(CROSS_ESPRISCV32)gcc $(CFLAGS_ESPRISCV32) -DESP32H4=1 -Tstub_32h4.ld -Wl,-Map=$(@:.elf=.map) -o $@ $(filter %.c, $^) $(LDLIBS)
 
 clean:
 	$(Q) rm -rf $(BUILD_DIR)

@@ -95,7 +95,7 @@ static bool can_use_max_cpu_freq()
   #endif
 }
 
-#if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3
+#if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32H4
 static uint32_t pcr_sysclk_conf_reg = 0;
 #else
 static uint32_t cpu_per_conf_reg = 0;
@@ -107,16 +107,16 @@ static void set_max_cpu_freq()
   if (can_use_max_cpu_freq())
   {
     /* Set CPU frequency to max. This also increases SPI speed. */
-    #if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3
+#if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32H4
     pcr_sysclk_conf_reg = READ_REG(PCR_SYSCLK_CONF_REG);
     WRITE_REG(PCR_SYSCLK_CONF_REG, (pcr_sysclk_conf_reg & ~PCR_SOC_CLK_SEL_M) | (PCR_SOC_CLK_MAX << PCR_SOC_CLK_SEL_S));
-    #else
+#else
     cpu_per_conf_reg = READ_REG(SYSTEM_CPU_PER_CONF_REG);
     sysclk_conf_reg = READ_REG(SYSTEM_SYSCLK_CONF_REG);
     WRITE_REG(SYSTEM_SYSCLK_CONF_REG, (sysclk_conf_reg & ~SYSTEM_SOC_CLK_SEL_M) | (SYSTEM_SOC_CLK_MAX << SYSTEM_SOC_CLK_SEL_S));
     ets_delay_us(100);  /* Leave some time for the change to settle, needed for ESP32-S3 */
     WRITE_REG(SYSTEM_CPU_PER_CONF_REG, (cpu_per_conf_reg & ~SYSTEM_CPUPERIOD_SEL_M) | (SYSTEM_CPUPERIOD_MAX << SYSTEM_CPUPERIOD_SEL_S));
-    #endif
+#endif
   }
 }
 
@@ -124,18 +124,18 @@ static void reset_cpu_freq()
 {
   /* Restore saved sysclk_conf and cpu_per_conf registers.
      Use only if set_max_cpu_freq() has been called. */
-  #if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3
+#if ESP32C61 || ESP32C6 || ESP32H2 || ESP32H4 || ESP32C5 || ESP32C5BETA3
   if (can_use_max_cpu_freq() && pcr_sysclk_conf_reg != 0)
   {
     WRITE_REG(PCR_SYSCLK_CONF_REG, (READ_REG(PCR_SYSCLK_CONF_REG) & ~PCR_SOC_CLK_SEL_M) | (pcr_sysclk_conf_reg & PCR_SOC_CLK_SEL_M));
   }
-  #else
+#else
   if (can_use_max_cpu_freq() && sysclk_conf_reg != 0 && cpu_per_conf_reg != 0)
   {
     WRITE_REG(SYSTEM_CPU_PER_CONF_REG, (READ_REG(SYSTEM_CPU_PER_CONF_REG) & ~SYSTEM_CPUPERIOD_SEL_M) | (cpu_per_conf_reg & SYSTEM_CPUPERIOD_SEL_M));
     WRITE_REG(SYSTEM_SYSCLK_CONF_REG, (READ_REG(SYSTEM_SYSCLK_CONF_REG) & ~SYSTEM_SOC_CLK_SEL_M) | (sysclk_conf_reg & SYSTEM_SOC_CLK_SEL_M));
   }
-  #endif
+#endif
 }
 #endif // USE_MAX_CPU_FREQ
 
@@ -492,6 +492,13 @@ __asm__ (
   "j stub_main;");
 #endif
 
+void serial_send(const void *buf, uint32_t size) {
+  const uint8_t *buf_c = (const uint8_t *)buf;
+  for(int i = 0; i < size; i++) {
+	    uart_tx_one_char(buf_c[i]);
+  }
+}
+
 /* This function is called from stub_main, with return address
    reset to point to user code. */
 void stub_main()
@@ -518,11 +525,71 @@ void stub_main()
 
   /* Send the OHAI greeting, stub will be reported as running. */
   SLIP_send(&greeting, 4);
+  // SLIP_send("1234", 4);
+#if ESP32H4
+  #define UART_DATE_REG(i) (UART_BASE_REG + 0x8c)
 
+  uint32_t reg = READ_REG(UART_DATE_REG(0));
+  uart_tx_one_char('1');
+  serial_send(&reg, 4); // 2022 31 02
+
+// #define PIN 22
+//   gpio_output_enable(PIN);
+//   gpio_set_output_level(PIN, 1);
+//   ets_delay_us(1000000);
+//   gpio_set_output_level(PIN, 0);
+//   ets_delay_us(1000000);
+//   gpio_set_output_level(PIN, 1);
+//   ets_delay_us(1000000);
+//   gpio_set_output_level(PIN, 0);
+#endif
   /* Configure the interrupts for receiving data from esptool on the host. */
   ub.reading_buf = ub.buf_a;
   stub_io_init(&stub_handle_rx_byte);
 
+
+  // uint8_t rec=0;
+  // uart_rx_one_char(&rec);
+  // ets_delay_us(1000000);
+  uint32_t fifo_len = 0;
+  uint32_t byte = 0;
+  uint32_t int_st = 0;
+
+  while(true) {
+    do {
+      int_st = READ_REG(UART_INT_ST(0));
+      fifo_len = READ_REG(UART_STATUS(0)) & UART_RXFIFO_CNT_M;
+      (void)int_st;
+      (void)fifo_len;
+    } while(fifo_len == 0);
+    byte = READ_REG(UART_FIFO(0));
+    (void)byte;
+
+    WRITE_REG(UART_INT_CLR(0), int_st);
+    uart_tx_one_char('1');
+    uart_tx_one_char(byte);
+    // serial_send(&fifo_len, 4); // 0x01
+    serial_send(&int_st, 4); // 0x01
+    fifo_len = 0;
+    byte = 0;
+    int_st = 0;
+  }
+
+  // uart_tx_one_char('4');
+  // serial_send(&int_st, 4);
+  // uart_tx_one_char('4');
+  // serial_send(&fifo_len, 4);
+  // uart_tx_one_char('4');
+  // serial_send(&byte, 4);
+  // uart_tx_one_char(int_st);
+  // uart_tx_one_char(fifo_len);
+  // uart_tx_one_char(byte);
+
+  // ets_delay_us(1000000);
+  // SLIP_send("1234", 4);
+
+
+#if 0
   /* Configure default SPI flash functionality.
      Can be overridden later by esptool.py. */
   #ifdef ESP8266
@@ -564,6 +631,7 @@ void stub_main()
   SPIParamCfg(0, FLASH_MAX_SIZE, FLASH_BLOCK_SIZE, FLASH_SECTOR_SIZE,
               FLASH_PAGE_SIZE, FLASH_STATUS_MASK);
 
+#endif
   /* Configurations are done, now run the loop to receive and handle commands. */
   cmd_loop();
 

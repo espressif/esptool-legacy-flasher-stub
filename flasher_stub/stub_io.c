@@ -25,6 +25,10 @@ static size_t s_cdcacm_txpos;
 
 
 void uart_isr(void *arg) {
+    // uart_tx_one_char('2');
+    // uart_tx_one_char('3');
+    // uart_tx_one_char('4');
+
   uint32_t int_st = READ_REG(UART_INT_ST(0));
   while (1) {
     uint32_t fifo_len = READ_REG(UART_STATUS(0)) & UART_RXFIFO_CNT_M;
@@ -43,7 +47,6 @@ void uart_isr(void *arg) {
 bool stub_uses_usb_jtag_serial(void)
 {
   UartDevice *uart = GetUartDevice();
-
   /* buff_uart_no indicates which UART is used for SLIP communication) */
   return uart->buff_uart_no == UART_USB_JTAG_SERIAL;
 }
@@ -65,7 +68,7 @@ static void stub_configure_rx_uart(void)
 #if WITH_USB_JTAG_SERIAL
   if (stub_uses_usb_jtag_serial()) {
     #if IS_RISCV
-      #if ESP32P4 || ESP32P4RC1 || ESP32C5 || ESP32C61
+      #if ESP32P4 || ESP32P4RC1 || ESP32C5 || ESP32C61 || ESP32H4
         WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM + CLIC_EXT_INTR_NUM_OFFSET);
       #else
         WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM);  // Route USB interrupt to CPU
@@ -80,9 +83,10 @@ static void stub_configure_rx_uart(void)
     return;
   }
 #endif // WITH_USB_JTAG_SERIAL
+
   ets_isr_attach(ETS_UART0_INUM, uart_isr, NULL);
   REG_SET_MASK(UART_INT_ENA(0), UART_RX_INTS);
-  ets_isr_unmask(1 << ETS_UART0_INUM);
+  ets_isr_unmask(1 << (ETS_UART0_INUM));
 }
 
 #ifdef WITH_USB_OTG
@@ -155,7 +159,7 @@ static void stub_configure_rx_usb(void)
     intr_matrix_set(0, ETS_USB_INTR_SOURCE, ETS_USB_INUM);
   #elif ESP32S3
     WRITE_REG(INTERRUPT_CORE0_USB_INTR_MAP_REG, ETS_USB_INUM);
-  #elif ESP32P4 || ESP32P4RC1
+  #elif ESP32P4 || ESP32P4RC1 || ESP32H4
     // Additional setting to solve missing DCONN event on ESP32P4 (IDF-9953).
     REG_SET_MASK(HP_SYS_USBOTG20_CTRL_REG, 1 << 21); /* set HP_SYS_OTG_SUSPENDM */
     WRITE_REG(INTERRUPT_CORE0_USB_OTG_INT_MAP_REG, ETS_USB_INUM + CLIC_EXT_INTR_NUM_OFFSET);

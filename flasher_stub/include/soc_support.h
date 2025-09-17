@@ -89,11 +89,16 @@
 #define IS_RISCV 1
 #endif // ESP32P4 || ESP32P4RC1
 
+#ifdef ESP32H4
+#define WITH_USB_JTAG_SERIAL 1
+#define IS_RISCV 1
+#endif // ESP32H4
+
 // Increase CPU freq to speed up read/write operations over USB
 // Disabled on the S3 due to stability issues, would require dbias adjustment.
 // https://github.com/espressif/esptool/issues/832, https://github.com/espressif/esptool/issues/808
 // Disabled for P4 because it is already running on high (360MHz) CPU frequency
-#define USE_MAX_CPU_FREQ ((WITH_USB_JTAG_SERIAL || WITH_USB_OTG) && !ESP32S3 && !(ESP32P4 || ESP32P4RC1))
+#define USE_MAX_CPU_FREQ ((WITH_USB_JTAG_SERIAL || WITH_USB_OTG) && !ESP32S3 && !(ESP32P4 || ESP32P4RC1)) && !ESP32H4
 
 // Later chips don't support ets_efuse_get_spiconfig.
 #define SUPPORT_CONFIG_SPI (ESP32 || ESP32S2 || ESP32S3 || ESP32S3BETA2 || ESP32C3 || ESP32H2BETA1 || ESP32H2BETA2 || ESP32C6BETA)
@@ -228,6 +233,18 @@
 #define DR_REG_LP_WDT_BASE  0x50116000
 #define DR_REG_IO_MUX_BASE  0x500E1000
 #define HP_SYS_USBOTG20_CTRL_REG 0x500E515C
+#endif
+
+#ifdef ESP32H4
+#define UART_BASE_REG       0x60012000 /* UART0 */
+// #define UART_BASE_REG       0x60013000 /* UART1 */
+#define SPI_BASE_REG        0x60099000 /* SPI peripheral 1, used for SPI flash  DR_REG_SPIMEM1_BASE */
+#define SPI0_BASE_REG       0x60098000 /* SPI peripheral 0, inner state machine */
+#define GPIO_BASE_REG       0x60093000
+#define USB_DEVICE_BASE_REG 0x6001D000
+#define DR_REG_PCR_BASE     0x60094000
+#define DR_REG_LP_WDT_BASE  0x600B5400
+#define DR_REG_IO_MUX_BASE  0x60092000
 #endif
 
 /**********************************************************
@@ -408,6 +425,19 @@
 #define ETS_USB_INUM 17  /* arbitrary level 1 level interrupt */
 #endif
 
+#ifdef ESP32H4
+#define UART_NO  0
+#define UART_USB_JTAG_SERIAL  3
+
+#define DR_REG_INTERRUPT_CORE0_BASE             0x6009A000   /* DR_REG_INTMTX0_BASE */
+#define INTERRUPT_CORE0_USB_INTR_MAP_REG        (DR_REG_INTERRUPT_CORE0_BASE + 0x068) /* USB-JTAG-Serial */
+
+#define CLIC_EXT_INTR_NUM_OFFSET 16  /* For CLIC first 16 interrupts are reserved as internal */
+#define ETS_USB_INUM 17  /* arbitrary level 1 level interrupt */
+// #undef ETS_UART0_INUM
+// #define ETS_UART0_INUM (5 + CLIC_EXT_INTR_NUM_OFFSET)
+#endif // ESP32H4
+
 #ifdef WITH_USB_JTAG_SERIAL
 #define USB_DEVICE_INT_ENA_REG          (USB_DEVICE_BASE_REG + 0x010)
 #define USB_DEVICE_INT_CLR_REG          (USB_DEVICE_BASE_REG + 0x014)
@@ -474,6 +504,15 @@
 #else
     #define RTC_CNTL_FORCE_DOWNLOAD_BOOT  (1 << 0)
 #endif // ESP32P4 || ESP32P4RC1
+
+#ifdef ESP32H4
+#define RTC_CNTL_WDTCONFIG0_REG       (DR_REG_LP_WDT_BASE + 0x0)   // LP_WDT_RWDT_CONFIG0_REG
+#define RTC_CNTL_WDTWPROTECT_REG      (DR_REG_LP_WDT_BASE + 0x001C)  // LP_WDT_RWDT_WPROTECT_REG
+#define RTC_CNTL_SWD_CONF_REG         (DR_REG_LP_WDT_BASE + 0x0020)  // LP_WDT_SWD_CONFIG_REG
+#define RTC_CNTL_SWD_WPROTECT_REG     (DR_REG_LP_WDT_BASE + 0x0024)  // LP_WDT_SWD_WPROTECT_REG
+#define RTC_CNTL_SWD_WKEY             0x50D83AA1
+#define RTC_CNTL_SWD_AUTO_FEED_EN     (1 << 18)
+#endif
 
 /**********************************************************
  * SYSTEM registers
@@ -547,6 +586,14 @@
 #define PCR_SOC_CLK_MAX              1 // CPU_CLK frequency is 160 MHz (source is PLL_CLK)
 #endif // ESP32H2
 
+#ifdef ESP32H4
+#define PCR_SYSCLK_CONF_REG          (DR_REG_PCR_BASE + 0x114)
+#define PCR_SOC_CLK_SEL_M            ((PCR_SOC_CLK_SEL_V)<<(PCR_SOC_CLK_SEL_S))
+#define PCR_SOC_CLK_SEL_V            0x3
+#define PCR_SOC_CLK_SEL_S            16
+#define PCR_SOC_CLK_MAX              1 // CPU_CLK frequency is 160 MHz (source is PLL_CLK)
+#endif // ESP32H4
+
 /**********************************************************
  * Per-SOC security info buffer size
  */
@@ -587,6 +634,10 @@
 #if ESP32P4 || ESP32P4RC1
 #define ROM_SPIFLASH_LEGACY         0x4ff3ffec
 #endif // ESP32P4 || ESP32P4RC1
+
+#if ESP32H4
+#define ROM_SPIFLASH_LEGACY         0x4085ffec
+#endif // ESP32H4
 
 /**********************************************************
  * IO-MUX peripheral
@@ -661,6 +712,14 @@
 #define PERIPHS_IO_MUX_SPICS0_U           (DR_REG_IO_MUX_BASE + 0x78)
 #define FUNC_GPIO 1
 #endif // ESP32P4 || ESP32P4RC1
+
+#if ESP32H4
+#define PERIPHS_IO_MUX_SPICLK_U           (DR_REG_IO_MUX_BASE + 0x2C)
+#define PERIPHS_IO_MUX_SPIQ_U             (DR_REG_IO_MUX_BASE + 0x20)
+#define PERIPHS_IO_MUX_SPID_U             (DR_REG_IO_MUX_BASE + 0x30)
+#define PERIPHS_IO_MUX_SPICS0_U           (DR_REG_IO_MUX_BASE + 0x1C)
+#define FUNC_GPIO 1
+#endif // ESP32H4
 
 /**********************************************************
  * AES-XTS peripheral

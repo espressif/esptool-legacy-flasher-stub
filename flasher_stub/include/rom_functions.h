@@ -18,6 +18,23 @@ int uart_rx_one_char(uint8_t *ch);
 uint8_t uart_rx_one_char_block();
 int uart_tx_one_char(char ch);
 
+/**
+  * @brief Set GPIO output level
+  *
+  * @param gpio_num GPIO number
+  * @param level Output level, 0:low; 1:high
+  */
+void gpio_set_output_level(uint32_t gpio_num, uint32_t level);
+// /**
+//   * @brief enable gpio output.
+//   *
+//   * @param uint32_t gpio_num : gpio number
+//   *
+//   * @return None
+//   */
+void gpio_output_enable(uint32_t gpio_num);
+
+
 #if ESP32C61 || ESP32C6 || ESP32H2 || ESP32C5 || ESP32C5BETA3 || ESP32P4 || ESP32P4RC1
 /* uart_tx_one_char doesn't send data to USB device serial, needs to be replaced */
 int uart_tx_one_char2(char ch);
