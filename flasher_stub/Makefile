@@ -55,7 +55,7 @@ SRCS = stub_flasher.c slip.c stub_commands.c stub_write_flash.c stub_io.c
 SRCS_8266 = miniz.c
 
 BUILD_DIR = build
-ESPTOOL_STUBS_DIR = ..
+ESPTOOL_STUBS_DIR ?= ..
 
 STUB_ELF_8266 = $(BUILD_DIR)/$(STUB)8266.elf
 STUB_ELF_32 = $(BUILD_DIR)/$(STUB)32.elf
