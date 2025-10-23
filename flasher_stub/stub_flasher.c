@@ -316,11 +316,18 @@ void cmd_loop() {
          1 - num_blocks (ignored)
          2 - block_size (should be MAX_WRITE_BLOCK, relies on num_blocks * block_size >= erase_size)
          3 - offset (used as-is)
+         4 - encrypt_flag (optional, if data_len == 20)
        */
-        if (command->data_len == 16 && data_words[2] > MAX_WRITE_BLOCK) {
+        if ((command->data_len == 16 || command->data_len == 20) && data_words[2] > MAX_WRITE_BLOCK) {
             error = ESP_BAD_BLOCKSIZE;
+        } else if (command->data_len == 20) {
+            /* Extended format with encryption flag */
+            error = verify_data_len(command, 20) || handle_flash_begin(data_words[0], data_words[3], data_words[4]);
+        } else if (command->data_len == 16) {
+            /* Legacy format, no encryption */
+            error = verify_data_len(command, 16) || handle_flash_begin(data_words[0], data_words[3], 0);
         } else {
-            error = verify_data_len(command, 16) || handle_flash_begin(data_words[0], data_words[3]);
+            error = ESP_BAD_DATA_LEN;
         }
       break;
     case ESP_FLASH_DEFLATED_BEGIN:
@@ -329,18 +336,22 @@ void cmd_loop() {
          1 - num_blocks (based on compressed size)
          2 - block_size (should be MAX_WRITE_BLOCK, total bytes over serial = num_blocks * block_size)
          3 - offset (used as-is)
+         4 - encrypt_flag (optional, if data_len == 20)
       */
-        if (command->data_len == 16 && data_words[2] > MAX_WRITE_BLOCK) {
+        if ((command->data_len == 16 || command->data_len == 20) && data_words[2] > MAX_WRITE_BLOCK) {
             error = ESP_BAD_BLOCKSIZE;
+        } else if (command->data_len == 20) {
+            /* Extended format with encryption flag */
+            error = verify_data_len(command, 20) || handle_flash_deflated_begin(data_words[0], data_words[1] * data_words[2], data_words[3], data_words[4]);
+        } else if (command->data_len == 16) {
+            /* Legacy format, no encryption */
+            error = verify_data_len(command, 16) || handle_flash_deflated_begin(data_words[0], data_words[1] * data_words[2], data_words[3], 0);
         } else {
-            error = verify_data_len(command, 16) || handle_flash_deflated_begin(data_words[0], data_words[1] * data_words[2], data_words[3]);
+            error = ESP_BAD_DATA_LEN;
         }
         break;
     case ESP_FLASH_DATA:
     case ESP_FLASH_DEFLATED_DATA:
-#if !ESP8266
-    case ESP_FLASH_ENCRYPT_DATA:
-#endif
 
       /* ACK DATA commands immediately, then process them a few lines down,
          allowing next command to buffer */
@@ -420,12 +431,6 @@ void cmd_loop() {
         /* drop into flashing mode, discard 16 byte payload header */
         handle_flash_data(command->data_buf + 16, command->data_len - 16);
         break;
-#if !ESP8266
-      case ESP_FLASH_ENCRYPT_DATA:
-        /* write encrypted data */
-        handle_flash_encrypt_data(command->data_buf + 16, command->data_len -16);
-        break;
-#endif
       case ESP_FLASH_DEFLATED_DATA:
         handle_flash_deflated_data(command->data_buf + 16, command->data_len - 16);
         break;
