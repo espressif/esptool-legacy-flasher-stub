@@ -61,7 +61,7 @@ typedef enum {
   ESP_READ_FLASH = 0xD2,
   ESP_RUN_USER_CODE = 0xD3,
 
-  /* Flash encryption debug mode supported command */
+  /* Obsolete - Flash encryption debug mode supported command */
   ESP_FLASH_ENCRYPT_DATA = 0xD4,
 } esp_command;
 
