@@ -1,3 +1,9 @@
+## v1.9.0 (2025-10-28)
+
+### New Features
+
+- **esp32c5**: Add ECO3 support
+
 ## v1.8.0 (2025-09-10)
 
 ### New Features
