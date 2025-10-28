@@ -189,7 +189,8 @@ rom_spiflash_legacy_funcs = 0x4085fff0;
 rom_spiflash_legacy_data = 0x4085ffec;
 g_flash_guard_ops = 0x4085fff4;
 memcpy = 0x40035b86;
-esp_rom_opiflash_exec_cmd = 0x4002c42a;
+esp_rom_opiflash_exec_cmd_eco2 = 0x4002c42a;
+esp_rom_opiflash_exec_cmd_eco3 = 0x4002e9f4;
 
 
 /***************************************

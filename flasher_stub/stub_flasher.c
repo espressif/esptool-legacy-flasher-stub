@@ -48,7 +48,18 @@ static uint8_t calculate_checksum(uint8_t *buf, int length)
   return res;
 }
 
-#if ESP32P4RC1
+#if ESP32C5 || ESP32P4RC1
+/* Helper to call the correct OPIFLASH_EXEC_CMD offset in ROM based on the ECO version */
+#define OPIFLASH_EXEC_CMD_CALL(fn) \
+  fn(spi_num, mode, \
+      cmd, cmd_bit_len, \
+      addr, addr_bit_len, \
+      dummy_bits, \
+      mosi_data, mosi_bit_len, \
+      miso_data, miso_bit_len, \
+      cs_mask, \
+      is_write_erase_operation)
+
 void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
   uint32_t cmd, int cmd_bit_len,
   uint32_t addr, int addr_bit_len,
@@ -58,27 +69,21 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
   uint32_t cs_mask,
   bool is_write_erase_operation)
 {
-  if (_rom_eco_version == 2) {
-      esp_rom_opiflash_exec_cmd_eco2(spi_num, mode,
-          cmd, cmd_bit_len,
-          addr, addr_bit_len,
-          dummy_bits,
-          mosi_data, mosi_bit_len,
-          miso_data, miso_bit_len,
-          cs_mask,
-          is_write_erase_operation);
+#if ESP32C5
+  if (_rom_eco_version == 3) {
+      OPIFLASH_EXEC_CMD_CALL(esp_rom_opiflash_exec_cmd_eco3);
   } else {
-      esp_rom_opiflash_exec_cmd_eco1(spi_num, mode,
-          cmd, cmd_bit_len,
-          addr, addr_bit_len,
-          dummy_bits,
-          mosi_data, mosi_bit_len,
-          miso_data, miso_bit_len,
-          cs_mask,
-          is_write_erase_operation);
+      OPIFLASH_EXEC_CMD_CALL(esp_rom_opiflash_exec_cmd_eco2);
   }
+#elif ESP32P4RC1
+  if (_rom_eco_version == 2) {
+      OPIFLASH_EXEC_CMD_CALL(esp_rom_opiflash_exec_cmd_eco2);
+  } else {
+      OPIFLASH_EXEC_CMD_CALL(esp_rom_opiflash_exec_cmd_eco1);
+  }
+#endif
 }
-#endif // ESP32P4RC1
+#endif // ESP32C5 || ESP32P4RC1
 
 #if USE_MAX_CPU_FREQ
 static bool can_use_max_cpu_freq()
