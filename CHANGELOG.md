@@ -1,3 +1,9 @@
+## v1.10.0 (2025-11-25)
+
+### New Features
+
+- enable compress and encryption together
+
 ## v1.9.0 (2025-10-28)
 
 ### New Features
