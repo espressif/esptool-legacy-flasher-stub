@@ -531,7 +531,7 @@ void stub_main()
   }
 
   /* Send the OHAI greeting, stub will be reported as running. */
-  SLIP_send(&greeting, 4);  
+  SLIP_send(&greeting, 4);
   stub_tx_flush();
 
   /* Configure the interrupts for receiving data from esptool on the host. */

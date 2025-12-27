@@ -179,11 +179,16 @@ void stub_tx_one_char(char c)
   }
 #endif // WITH_USB_OTG
 #if WITH_USB_JTAG_SERIAL
-  if (stub_uses_usb_jtag_serial()){   
-    /* Before writing, check if the FIFO has space. If not, we are just within a flush. Wait till done. */
-    while (!USB_DEVICE_SERIAL_IN_EP_DATA_FREE) { }
+  if (stub_uses_usb_jtag_serial()){
+    /* Before writing, check if the FIFO has space. If not, we are just within a flush. Wait till done,
+     * but avoid hanging indefinitely by enforcing a timeout. */
+    int wait_timeout_us = 100000; /* 100 ms overall timeout */
+    while (!USB_DEVICE_SERIAL_IN_EP_DATA_FREE && wait_timeout_us > 0) {
+      ets_delay_us(10);
+      wait_timeout_us -= 10;
+    }
     /* Write character into FIFO */
-    USB_DEVICE_EP1 = (uint8_t)c;
+    WRITE_REG(USB_DEVICE_EP1_REG, (uint8_t)c);
   } else {
     uart_tx_one_char(c);
   }
@@ -202,9 +207,9 @@ void stub_tx_flush(void)
   }
 #endif // WITH_USB_OTG
 #if WITH_USB_JTAG_SERIAL
-  if (stub_uses_usb_jtag_serial()){    
-      /* Explicitely flush the data in buffer. If the buffer is empty, the no-op bulk will signal the bulk transaction end. */
-      USB_DEVICE_EP1_CONF = USB_DEVICE_WR_DONE_MASK;
+  if (stub_uses_usb_jtag_serial()){
+      /* Explicitly flush the data in buffer. If the buffer is empty, the no-op bulk will signal the bulk transaction end. */
+      WRITE_REG(USB_DEVICE_EP1_CONF_REG, USB_DEVICE_WR_DONE_MASK);
       return;
   }
 #endif // WITH_USB_JTAG_SERIAL
