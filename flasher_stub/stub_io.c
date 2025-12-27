@@ -178,18 +178,22 @@ void stub_tx_one_char(char c)
     return;
   }
 #endif // WITH_USB_OTG
-  uart_tx_one_char(c);
 #if WITH_USB_JTAG_SERIAL
-  static unsigned short transferred_without_flush = 0;
   if (stub_uses_usb_jtag_serial()){
-    // Defer flushing until we have a (full - 1) packet or a end of packet (0xc0) byte to increase throughput.
-    // Note that deferring flushing until we have a full packet can cause hang-ups on some platforms.
-    ++transferred_without_flush;
-    if (c == '\xc0' || transferred_without_flush >= 63) {
-      stub_tx_flush();
-      transferred_without_flush = 0;
+    /* Before writing, check if the FIFO has space. If not, we are just within a flush. Wait till done,
+     * but avoid hanging indefinitely by enforcing a timeout. */
+    int wait_timeout_us = 100000; /* 100 ms overall timeout */
+    while (!USB_DEVICE_SERIAL_IN_EP_DATA_FREE && wait_timeout_us > 0) {
+      ets_delay_us(10);
+      wait_timeout_us -= 10;
     }
+    /* Write character into FIFO */
+    WRITE_REG(USB_DEVICE_EP1_REG, (uint8_t)c);
+  } else {
+    uart_tx_one_char(c);
   }
+#else
+  uart_tx_one_char(c);
 #endif // WITH_USB_JTAG_SERIAL
 }
 
@@ -204,7 +208,8 @@ void stub_tx_flush(void)
 #endif // WITH_USB_OTG
 #if WITH_USB_JTAG_SERIAL
   if (stub_uses_usb_jtag_serial()){
-      uart_tx_flush(UART_USB_JTAG_SERIAL);
+      /* Explicitly flush the data in buffer. If the buffer is empty, the no-op bulk will signal the bulk transaction end. */
+      WRITE_REG(USB_DEVICE_EP1_CONF_REG, USB_DEVICE_WR_DONE_MASK);
       return;
   }
 #endif // WITH_USB_JTAG_SERIAL
