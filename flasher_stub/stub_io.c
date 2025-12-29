@@ -208,8 +208,7 @@ void stub_tx_flush(void)
 #endif // WITH_USB_OTG
 #if WITH_USB_JTAG_SERIAL
   if (stub_uses_usb_jtag_serial()){
-      /* Explicitly flush the data in buffer. If the buffer is empty, the no-op bulk will signal the bulk transaction end. */
-      WRITE_REG(USB_DEVICE_EP1_CONF_REG, USB_DEVICE_WR_DONE_MASK);
+      uart_tx_flush(UART_USB_JTAG_SERIAL);
       return;
   }
 #endif // WITH_USB_JTAG_SERIAL
