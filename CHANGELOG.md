@@ -1,3 +1,9 @@
+## v1.11.1 (2026-01-05)
+
+### Bug Fixes
+
+- **32_bit_addressing**: Fix >16 MB support with a correct macro expansion
+
 ## v1.11.0 (2026-01-05)
 
 ### New Features
