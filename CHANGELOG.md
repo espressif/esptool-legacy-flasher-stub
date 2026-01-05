@@ -1,3 +1,9 @@
+## v1.11.0 (2026-01-05)
+
+### New Features
+
+- **esp32p4**: Add ECO6 support
+
 ## v1.10.0 (2025-11-25)
 
 ### New Features
