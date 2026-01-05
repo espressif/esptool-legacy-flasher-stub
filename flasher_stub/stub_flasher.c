@@ -51,7 +51,7 @@ static uint8_t calculate_checksum(uint8_t *buf, int length)
 #if ESP32C5 || ESP32P4RC1 || ESP32P4
 /* Helper to call the correct OPIFLASH_EXEC_CMD offset in ROM based on the ECO version */
 #define OPIFLASH_EXEC_CMD_CALL(fn) \
-  fn(spi_num, mode, \
+  (fn)(spi_num, mode, \
       cmd, cmd_bit_len, \
       addr, addr_bit_len, \
       dummy_bits, \
