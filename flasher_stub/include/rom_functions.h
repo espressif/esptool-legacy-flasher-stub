@@ -348,10 +348,6 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
     uint32_t cs_mask,
     bool is_write_erase_operation);
 
-#if ESP32C5
-extern uint32_t _rom_eco_version; // rom constant to define ECO version
-#endif // ESP32C5
-
 #if ESP32P4RC1
 extern uint32_t _rom_eco_version; // rom constant to define ECO version
 void esp_rom_opiflash_exec_cmd_eco1(int spi_num, SpiFlashRdMode mode,
@@ -372,6 +368,27 @@ void esp_rom_opiflash_exec_cmd_eco2(int spi_num, SpiFlashRdMode mode,
     uint32_t cs_mask,
     bool is_write_erase_operation);
 #endif // ESP32P4RC1
+
+#if ESP32P4
+extern uint32_t _rom_eco_version; // rom constant to define ECO version
+void esp_rom_opiflash_exec_cmd_eco5(int spi_num, SpiFlashRdMode mode,
+    uint32_t cmd, int cmd_bit_len,
+    uint32_t addr, int addr_bit_len,
+    int dummy_bits,
+    uint8_t* mosi_data, int mosi_bit_len,
+    uint8_t* miso_data, int miso_bit_len,
+    uint32_t cs_mask,
+    bool is_write_erase_operation);
+
+void esp_rom_opiflash_exec_cmd_eco6(int spi_num, SpiFlashRdMode mode,
+    uint32_t cmd, int cmd_bit_len,
+    uint32_t addr, int addr_bit_len,
+    int dummy_bits,
+    uint8_t* mosi_data, int mosi_bit_len,
+    uint8_t* miso_data, int miso_bit_len,
+    uint32_t cs_mask,
+    bool is_write_erase_operation);
+#endif // ESP32P4
 
 #if ESP32C5
 extern uint32_t _rom_eco_version; // rom constant to define ECO version

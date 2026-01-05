@@ -629,5 +629,13 @@ ets_set_bootloader_offset = 0x4fc00a44;
  ***************************************/
 
 memcpy = 0x4fc0026c;
-esp_rom_opiflash_exec_cmd = 0x4fc109e4;
+esp_rom_opiflash_exec_cmd_eco5 = 0x4fc109e4;
+esp_rom_opiflash_exec_cmd_eco6 = 0x4fc10a60;
 
+/***************************************
+ ROM version variables for esp32p4
+ These addresses should be compatible with any ROM version for this chip.
+ ***************************************/
+
+_rom_chip_id = 0x4fc00010;
+_rom_eco_version = 0x4fc00014;
