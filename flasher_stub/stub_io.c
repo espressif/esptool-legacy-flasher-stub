@@ -208,6 +208,12 @@ void stub_tx_flush(void)
 #endif // WITH_USB_OTG
 #if WITH_USB_JTAG_SERIAL
   if (stub_uses_usb_jtag_serial()){
+      /* Before writing, check if the FIFO has space. If not, we are just within a flush. Wait till done */
+      int wait_timeout_us = 100000; /* 100 ms overall timeout */
+      while (!USB_DEVICE_SERIAL_IN_EP_DATA_FREE && wait_timeout_us > 0) {
+        ets_delay_us(10);
+        wait_timeout_us -= 10;
+      }
       uart_tx_flush(UART_USB_JTAG_SERIAL);
       return;
   }
