@@ -1,4 +1,6 @@
-This is the source of the software flasher stub.
+> **Deprecated.** This source tree is part of [esptool-legacy-flasher-stub](https://github.com/espressif/esptool-legacy-flasher-stub), which has been superseded by [esp-flasher-stub](https://github.com/espressif/esp-flasher-stub). New development happens there.
+
+This is the source of the legacy software flasher stub.
 
 esptool.py loads the flasher stub into memory and executes it to:
 
