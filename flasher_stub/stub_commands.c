@@ -174,6 +174,8 @@ void handle_flash_read(uint32_t addr, uint32_t len, uint32_t block_size,
       addr += n;
       num_sent += n;
     }
+    /* we queued all data we wanted to send, now flush and wait for host to respond */
+    stub_tx_flush();
     int r = SLIP_recv(&num_acked, sizeof(num_acked));
     if (r != 4) {
       break;
