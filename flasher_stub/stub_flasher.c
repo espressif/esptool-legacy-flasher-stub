@@ -70,10 +70,12 @@ void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
   bool is_write_erase_operation)
 {
 #if ESP32C5
-  OPIFLASH_EXEC_CMD_CALL(_rom_eco_version == 3 ? esp_rom_opiflash_exec_cmd_eco3 : esp_rom_opiflash_exec_cmd_eco2);
+  /* Newer ROM builds keep this entry. An exact match drops values such as 0x13 onto the ECO2 entry. */
+  OPIFLASH_EXEC_CMD_CALL(_rom_eco_version >= 3 ? esp_rom_opiflash_exec_cmd_eco3 : esp_rom_opiflash_exec_cmd_eco2);
 #elif ESP32P4RC1
-  OPIFLASH_EXEC_CMD_CALL(_rom_eco_version == 2 ? esp_rom_opiflash_exec_cmd_eco2 : esp_rom_opiflash_exec_cmd_eco1);
+  OPIFLASH_EXEC_CMD_CALL(_rom_eco_version >= 2 ? esp_rom_opiflash_exec_cmd_eco2 : esp_rom_opiflash_exec_cmd_eco1);
 #elif ESP32P4
+  /* ECO5 has its own entry. Every other version, including newer ones, uses the ECO6 entry. */
   OPIFLASH_EXEC_CMD_CALL(_rom_eco_version == 5 ? esp_rom_opiflash_exec_cmd_eco5 : esp_rom_opiflash_exec_cmd_eco6);
 #endif
 }
