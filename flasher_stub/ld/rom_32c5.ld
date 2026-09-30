@@ -191,6 +191,8 @@ g_flash_guard_ops = 0x4085fff4;
 memcpy = 0x40035b86;
 esp_rom_opiflash_exec_cmd_eco2 = 0x4002c42a;
 esp_rom_opiflash_exec_cmd_eco3 = 0x4002e9f4;
+/* Not an exported ROM slot. Measured from esp32c5-eco5-20260720. */
+esp_rom_opiflash_exec_cmd_eco5 = 0x4002f38c;
 
 
 /***************************************
